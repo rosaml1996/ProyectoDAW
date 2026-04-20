@@ -60,6 +60,19 @@ require_once __DIR__ . '/../partials/header.php';
                 <i class="fas fa-arrow-right"></i>
             </div>
         </a>
+        
+        <a class="panel-card" href="/ProyectoDAW/cliente/perfil.php">
+            <div class="panel-card__icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="panel-card__content">
+                <h3><?= t("client_panel_profile_title") ?></h3>
+                <p><?= t("client_panel_profile_text") ?></p>
+            </div>
+            <div class="panel-card__arrow">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+        </a>
 
         <a class="panel-card panel-card--danger" href="/ProyectoDAW/logout.php">
             <div class="panel-card__icon">
@@ -68,19 +81,6 @@ require_once __DIR__ . '/../partials/header.php';
             <div class="panel-card__content">
                 <h3><?= t("client_panel_logout_title") ?></h3>
                 <p><?= t("client_panel_logout_text") ?></p>
-            </div>
-            <div class="panel-card__arrow">
-                <i class="fas fa-arrow-right"></i>
-            </div>
-        </a>
-
-        <a class="panel-card" href="/ProyectoDAW/cliente/perfil.php">
-            <div class="panel-card__icon">
-                <i class="fas fa-user"></i>
-            </div>
-            <div class="panel-card__content">
-                <h3><?= t("client_panel_profile_title") ?></h3>
-                <p><?= t("client_panel_profile_text") ?></p>
             </div>
             <div class="panel-card__arrow">
                 <i class="fas fa-arrow-right"></i>
