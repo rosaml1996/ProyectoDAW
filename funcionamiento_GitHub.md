@@ -1,4 +1,4 @@
-Norma del proyecto en Git:
+## Norma del proyecto en Git:
 
 * `main`: versión final y estable. No se trabaja aquí.
 * `develop`: rama de desarrollo. Aquí se integran las features terminadas.
