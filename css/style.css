@@ -1170,6 +1170,20 @@ footer p {
   box-shadow: 0 24px 36px rgba(0, 101, 114, .28);
 }
 
+.input-error {
+  display: block;
+  min-height: 18px;
+  margin: -4px 2px 6px;
+  font-size: 13px;
+  color: #b42318;
+  text-align: left;
+}
+
+.auth-field-error {
+  border-color: #b42318 !important;
+  box-shadow: 0 10px 22px rgba(180, 35, 24, 0.12) !important;
+}
+
 /* ===================== MEDIA QUERIES ===================== */
 
 @media (min-width: 768px) {
