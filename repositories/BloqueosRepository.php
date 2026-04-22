@@ -56,6 +56,29 @@ class BloqueosRepository
         return (int) $pdo->lastInsertId();
     }
 
+    public static function update(int $id_bloqueo, string $fecha, ?string $hora_inicio, ?string $hora_fin, ?string $motivo): bool
+    {
+        $pdo = db();
+
+        $sql = "UPDATE bloqueo_agenda
+                SET fecha = :fecha,
+                    hora_inicio = :hora_inicio,
+                    hora_fin = :hora_fin,
+                    motivo = :motivo
+                WHERE id_bloqueo = :id_bloqueo";
+
+        $st = $pdo->prepare($sql);
+        $st->execute([
+            ':fecha' => $fecha,
+            ':hora_inicio' => $hora_inicio,
+            ':hora_fin' => $hora_fin,
+            ':motivo' => $motivo,
+            ':id_bloqueo' => $id_bloqueo
+        ]);
+
+        return $st->rowCount() === 1;
+    }
+
     public static function delete(int $id_bloqueo): bool
     {
         $pdo = db();

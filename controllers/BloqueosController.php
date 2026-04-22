@@ -37,6 +37,14 @@ class BloqueosController
                 Response::json(['error' => 'La fecha debe tener formato YYYY-MM-DD.'], 400);
             }
 
+            if ($fecha < date('Y-m-d')) {
+                Response::json(['error' => 'No se puede crear un bloqueo en una fecha pasada.'], 400);
+            }
+
+            if ($motivo === '') {
+                Response::json(['error' => 'Debes indicar un motivo para el bloqueo.'], 400);
+            }
+
             $hora_inicio = $hora_inicio === '' ? null : self::normalizarHora($hora_inicio);
             $hora_fin = $hora_fin === '' ? null : self::normalizarHora($hora_fin);
 
@@ -57,7 +65,7 @@ class BloqueosController
                 }
             }
 
-            $id = BloqueosRepository::create($fecha, $hora_inicio, $hora_fin, $motivo === '' ? null : $motivo);
+            $id = BloqueosRepository::create($fecha, $hora_inicio, $hora_fin, $motivo);
 
             if (!$id) {
                 Response::json(['error' => 'No se pudo guardar el bloqueo.'], 500);
@@ -69,6 +77,78 @@ class BloqueosController
             ], 201);
         } catch (Throwable $e) {
             Response::json(['error' => 'No se pudo guardar el bloqueo.'], 500);
+        }
+    }
+
+    public static function update(int $id): void
+    {
+        try {
+            AdminAuth::user();
+
+            $bloqueo = BloqueosRepository::getById($id);
+
+            if (!$bloqueo) {
+                Response::json(['error' => 'El bloqueo no existe.'], 404);
+            }
+
+            $data = Request::json();
+
+            $fecha = trim((string) ($data['fecha'] ?? ''));
+            $hora_inicio = trim((string) ($data['hora_inicio'] ?? ''));
+            $hora_fin = trim((string) ($data['hora_fin'] ?? ''));
+            $motivo = trim((string) ($data['motivo'] ?? ''));
+
+            if ($fecha === '') {
+                Response::json(['error' => 'Debes indicar una fecha.'], 400);
+            }
+
+            if (!self::validarFecha($fecha)) {
+                Response::json(['error' => 'La fecha debe tener formato YYYY-MM-DD.'], 400);
+            }
+
+            if ($fecha < date('Y-m-d')) {
+                Response::json(['error' => 'No se puede modificar un bloqueo a una fecha pasada.'], 400);
+            }
+
+            if ($motivo === '') {
+                Response::json(['error' => 'Debes indicar un motivo para el bloqueo.'], 400);
+            }
+
+            $hora_inicio = $hora_inicio === '' ? null : self::normalizarHora($hora_inicio);
+            $hora_fin = $hora_fin === '' ? null : self::normalizarHora($hora_fin);
+
+            $esDiaCompleto = ($hora_inicio === null && $hora_fin === null);
+            $esParcialValido = ($hora_inicio !== null && $hora_fin !== null);
+
+            if (!$esDiaCompleto && !$esParcialValido) {
+                Response::json(['error' => 'Debes indicar ambas horas o dejar ambas vacías para bloquear el día completo.'], 400);
+            }
+
+            if ($esParcialValido) {
+                if (!self::validarHora($hora_inicio) || !self::validarHora($hora_fin)) {
+                    Response::json(['error' => 'Las horas deben tener formato HH:MM:SS.'], 400);
+                }
+
+                if ($hora_inicio >= $hora_fin) {
+                    Response::json(['error' => 'La hora de inicio debe ser menor que la hora de fin.'], 400);
+                }
+            }
+
+            $ok = BloqueosRepository::update(
+                $id,
+                $fecha,
+                $hora_inicio,
+                $hora_fin,
+                $motivo
+            );
+
+            if (!$ok) {
+                Response::json(['error' => 'No se pudo actualizar el bloqueo.'], 500);
+            }
+
+            Response::json(['message' => 'Bloqueo actualizado correctamente.']);
+        } catch (Throwable $e) {
+            Response::json(['error' => 'No se pudo actualizar el bloqueo.'], 500);
         }
     }
 
