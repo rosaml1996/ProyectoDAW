@@ -60,7 +60,6 @@ $tipoMensaje = "";
 // ACCIONES
 // =====================================================
 
-// Cancelar cita reservada
 if (isset($_POST["cancelar_cita"])) {
     $id = $_POST["id_cita"] ?? "";
 
@@ -77,7 +76,6 @@ if (isset($_POST["cancelar_cita"])) {
     }
 }
 
-// Crear horario
 if (isset($_POST["crear_horario"])) {
     $resCrearHorario = llamarApi("POST", "admin/horarios", [
         "dia_semana" => $_POST["dia_semana"] ?? "",
@@ -94,7 +92,6 @@ if (isset($_POST["crear_horario"])) {
     }
 }
 
-// Editar horario
 if (isset($_POST["editar_horario"])) {
     $id = $_POST["id_horario"] ?? "";
 
@@ -114,7 +111,6 @@ if (isset($_POST["editar_horario"])) {
     }
 }
 
-// Eliminar horario
 if (isset($_POST["eliminar_horario"])) {
     $id = $_POST["id_horario"] ?? "";
 
@@ -129,7 +125,6 @@ if (isset($_POST["eliminar_horario"])) {
     }
 }
 
-// Crear bloqueo
 if (isset($_POST["crear_bloqueo"])) {
     $horaInicio = trim($_POST["hora_inicio_bloqueo"] ?? "");
     $horaFin = trim($_POST["hora_fin_bloqueo"] ?? "");
@@ -150,7 +145,27 @@ if (isset($_POST["crear_bloqueo"])) {
     }
 }
 
-// Eliminar bloqueo
+if (isset($_POST["editar_bloqueo"])) {
+    $id = $_POST["id_bloqueo"] ?? "";
+    $horaInicio = trim($_POST["hora_inicio_bloqueo_editar"] ?? "");
+    $horaFin = trim($_POST["hora_fin_bloqueo_editar"] ?? "");
+
+    $resEditarBloqueo = llamarApi("PUT", "admin/bloqueos/" . $id, [
+        "fecha" => $_POST["fecha_bloqueo_editar"] ?? "",
+        "hora_inicio" => $horaInicio === "" ? null : $horaInicio,
+        "hora_fin" => $horaFin === "" ? null : $horaFin,
+        "motivo" => $_POST["motivo_bloqueo_editar"] ?? ""
+    ]);
+
+    if ($resEditarBloqueo["ok"]) {
+        $mensaje = $resEditarBloqueo["datos"]["message"] ?? "Bloqueo actualizado correctamente.";
+        $tipoMensaje = "ok";
+    } else {
+        $mensaje = $resEditarBloqueo["datos"]["error"] ?? "No se pudo actualizar el bloqueo.";
+        $tipoMensaje = "error";
+    }
+}
+
 if (isset($_POST["eliminar_bloqueo"])) {
     $id = $_POST["id_bloqueo"] ?? "";
 
@@ -208,6 +223,10 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
     </section>
 
+    <section class="panel-grid" style="display:block;">
+        <p><a href="/ProyectoDAW/admin/panel.php">← <?= t("client_back_panel") ?></a></p>
+    </section>
+
     <?php if ($mensaje != ""): ?>
         <section style="margin-top: 18px;">
             <p class="<?= $tipoMensaje === 'ok' ? 'mensaje-ok' : 'mensaje-error' ?>">
@@ -261,22 +280,37 @@ require_once __DIR__ . '/../partials/header.php';
                 <p>Puedes bloquear un día completo o solo una franja horaria.</p>
             </div>
 
-            <form class="auth-form" method="POST">
+            <form class="auth-form" method="POST" id="formCrearBloqueo">
+                <div class="auth-field" id="crearBloqueoFechaField">
+                    <input
+                        type="date"
+                        name="fecha_bloqueo"
+                        id="fecha_bloqueo"
+                        min="<?= date('Y-m-d') ?>"
+                        required
+                    >
+                </div>
+                <span id="errorCrearBloqueoFecha" class="input-error"></span>
+
                 <div class="auth-field">
-                    <input type="date" name="fecha_bloqueo" required>
+                    <input type="time" name="hora_inicio_bloqueo" id="hora_inicio_bloqueo">
                 </div>
 
                 <div class="auth-field">
-                    <input type="time" name="hora_inicio_bloqueo">
+                    <input type="time" name="hora_fin_bloqueo" id="hora_fin_bloqueo">
                 </div>
+                <span id="errorCrearBloqueoHoras" class="input-error"></span>
 
-                <div class="auth-field">
-                    <input type="time" name="hora_fin_bloqueo">
+                <div class="auth-field" id="crearBloqueoMotivoField">
+                    <input
+                        type="text"
+                        name="motivo_bloqueo"
+                        id="motivo_bloqueo"
+                        placeholder="Motivo"
+                        required
+                    >
                 </div>
-
-                <div class="auth-field">
-                    <input type="text" name="motivo_bloqueo" placeholder="Motivo">
-                </div>
+                <span id="errorCrearBloqueoMotivo" class="input-error"></span>
 
                 <button class="auth-btn" type="submit" name="crear_bloqueo">
                     Guardar bloqueo
@@ -371,7 +405,21 @@ require_once __DIR__ . '/../partials/header.php';
                                 <td><?= htmlspecialchars($bloqueo["hora_inicio"] ? formatearHora($bloqueo["hora_inicio"]) : "Día completo") ?></td>
                                 <td><?= htmlspecialchars($bloqueo["hora_fin"] ? formatearHora($bloqueo["hora_fin"]) : "-") ?></td>
                                 <td><?= htmlspecialchars($bloqueo["motivo"] ?? "") ?></td>
-                                <td>
+                                <td class="acciones-tabla">
+                                    <button
+                                        type="button"
+                                        class="btn-tabla btn-reservar"
+                                        onclick="abrirModalEditarBloqueo(
+                                            '<?= $bloqueo['id_bloqueo'] ?>',
+                                            '<?= $bloqueo['fecha'] ?>',
+                                            '<?= $bloqueo['hora_inicio'] ? substr($bloqueo['hora_inicio'], 0, 5) : '' ?>',
+                                            '<?= $bloqueo['hora_fin'] ? substr($bloqueo['hora_fin'], 0, 5) : '' ?>',
+                                            '<?= htmlspecialchars($bloqueo['motivo'] ?? '', ENT_QUOTES) ?>'
+                                        )"
+                                    >
+                                        Editar
+                                    </button>
+
                                     <form method="POST" style="margin:0;">
                                         <input type="hidden" name="id_bloqueo" value="<?= $bloqueo["id_bloqueo"] ?>">
                                         <button type="submit" name="eliminar_bloqueo" class="btn-tabla btn-anular">
@@ -533,19 +581,64 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
 </div>
 
-<script>
-function abrirModalEditarHorario(id, dia, horaInicio, horaFin, activo) {
-    document.getElementById("editar_id_horario").value = id;
-    document.getElementById("editar_dia_semana").value = dia;
-    document.getElementById("editar_hora_inicio").value = horaInicio;
-    document.getElementById("editar_hora_fin").value = horaFin;
-    document.getElementById("editar_activo").value = activo;
-    document.getElementById("modalEditarHorario").style.display = "flex";
-}
+<div id="modalEditarBloqueo" class="modal-confirmacion">
+    <div class="modal-box">
+        <div class="modal-top">
+            <h3>Editar bloqueo</h3>
+        </div>
 
-function cerrarModalEditarHorario() {
-    document.getElementById("modalEditarHorario").style.display = "none";
-}
-</script>
+        <div class="modal-body">
+            <form method="POST" class="auth-form" id="formEditarBloqueo">
+                <input type="hidden" name="id_bloqueo" id="editar_id_bloqueo">
+
+                <div class="auth-field" id="editarBloqueoFechaField">
+                    <input
+                        type="date"
+                        name="fecha_bloqueo_editar"
+                        id="editar_fecha_bloqueo"
+                        min="<?= date('Y-m-d') ?>"
+                        required
+                    >
+                </div>
+                <span id="errorEditarBloqueoFecha" class="input-error"></span>
+
+                <div class="auth-field">
+                    <input type="time" name="hora_inicio_bloqueo_editar" id="editar_hora_inicio_bloqueo">
+                </div>
+
+                <div class="auth-field">
+                    <input type="time" name="hora_fin_bloqueo_editar" id="editar_hora_fin_bloqueo">
+                </div>
+                <span id="errorEditarBloqueoHoras" class="input-error"></span>
+
+                <div class="auth-field" id="editarBloqueoMotivoField">
+                    <input
+                        type="text"
+                        name="motivo_bloqueo_editar"
+                        id="editar_motivo_bloqueo"
+                        placeholder="Motivo"
+                        required
+                    >
+                </div>
+                <span id="errorEditarBloqueoMotivo" class="input-error"></span>
+            </form>
+
+            <p style="margin-top:10px; font-size:14px;">
+                Si dejas vacías las horas, se bloqueará el día completo.
+            </p>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="modal-btn modal-btn-cancelar" onclick="cerrarModalEditarBloqueo()">
+                Cancelar
+            </button>
+            <button type="submit" form="formEditarBloqueo" name="editar_bloqueo" class="modal-btn modal-btn-aceptar">
+                Guardar cambios
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="/ProyectoDAW/admin/js/citas.js"></script>
 
 <?php Html::finHtml(); ?>

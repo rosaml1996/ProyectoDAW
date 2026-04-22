@@ -140,6 +140,8 @@ class CitasRepository
 
     public static function getByPaciente(int $id_paciente): array
     {
+        self::marcarPasadasComoCompletadas();
+
         $pdo = db();
 
         $sql = "SELECT c.id_cita,
@@ -280,6 +282,8 @@ class CitasRepository
 
     public static function getAll(): array
     {
+        self::marcarPasadasComoCompletadas();
+
         $pdo = db();
 
         $sql = "SELECT c.id_cita,
@@ -303,6 +307,19 @@ class CitasRepository
         $st->execute();
 
         return $st->fetchAll();
+    }
+
+    public static function marcarPasadasComoCompletadas(): void
+    {
+        $pdo = db();
+
+        $sql = "UPDATE cita
+                SET estado = 'completada'
+                WHERE estado = 'reservada'
+                  AND TIMESTAMP(fecha, hora_fin) < NOW()";
+
+        $st = $pdo->prepare($sql);
+        $st->execute();
     }
 
     private static function getServicioActivo(int $id_servicio): array|false

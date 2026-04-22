@@ -166,6 +166,10 @@ if ($method === 'POST' && $ruta === 'admin/bloqueos') {
     BloqueosController::create();
 }
 
+if ($method === 'PUT' && preg_match('#^admin/bloqueos/(\d+)$#', $ruta, $matches)) {
+    BloqueosController::update((int) $matches[1]);
+}
+
 if ($method === 'DELETE' && preg_match('#^admin/bloqueos/(\d+)$#', $ruta, $matches)) {
     BloqueosController::delete((int) $matches[1]);
 }
