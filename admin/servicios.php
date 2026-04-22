@@ -27,15 +27,16 @@ $tipoMensaje = "";
 if (isset($_POST["crear"])) {
     $resCrear = llamarApi("POST", "servicios", [
         "nombre" => $_POST["nombre"] ?? "",
+        "descripcion" => $_POST["descripcion"] ?? "",
         "duracion" => $_POST["duracion"] ?? "",
         "precio" => $_POST["precio"] ?? ""
     ]);
 
     if ($resCrear["ok"]) {
-        $mensaje = $resCrear["datos"]["message"] ?? t("admin_services_create_success");
+        $mensaje = $resCrear["datos"]["message"] ?? "Servicio creado correctamente.";
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resCrear["datos"]["error"] ?? t("admin_services_create_error");
+        $mensaje = $resCrear["datos"]["error"] ?? "No se pudo crear el servicio.";
         $tipoMensaje = "error";
     }
 }
@@ -46,42 +47,58 @@ if (isset($_POST["editar"])) {
 
     $resEditar = llamarApi("PUT", "servicios/" . $id, [
         "nombre" => $_POST["nombre_editar"] ?? "",
+        "descripcion" => $_POST["descripcion_editar"] ?? "",
         "duracion" => $_POST["duracion_editar"] ?? "",
         "precio" => $_POST["precio_editar"] ?? ""
     ]);
 
     if ($resEditar["ok"]) {
-        $mensaje = $resEditar["datos"]["message"] ?? t("admin_services_edit_success");
+        $mensaje = $resEditar["datos"]["message"] ?? "Servicio actualizado correctamente.";
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resEditar["datos"]["error"] ?? t("admin_services_edit_error");
+        $mensaje = $resEditar["datos"]["error"] ?? "No se pudo actualizar el servicio.";
         $tipoMensaje = "error";
     }
 }
 
-// ELIMINAR SERVICIO
-if (isset($_POST["eliminar"])) {
+// DESACTIVAR SERVICIO
+if (isset($_POST["desactivar"])) {
     $id = $_POST["id_servicio"] ?? "";
 
-    $resEliminar = llamarApi("DELETE", "servicios/" . $id);
+    $resDesactivar = llamarApi("DELETE", "servicios/" . $id);
 
-    if ($resEliminar["ok"]) {
-        $mensaje = $resEliminar["datos"]["message"] ?? t("admin_services_delete_success");
+    if ($resDesactivar["ok"]) {
+        $mensaje = $resDesactivar["datos"]["message"] ?? "Servicio desactivado correctamente.";
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resEliminar["datos"]["error"] ?? t("admin_services_delete_error");
+        $mensaje = $resDesactivar["datos"]["error"] ?? "No se pudo desactivar el servicio.";
+        $tipoMensaje = "error";
+    }
+}
+
+// ACTIVAR SERVICIO
+if (isset($_POST["activar"])) {
+    $id = $_POST["id_servicio"] ?? "";
+
+    $resActivar = llamarApi("POST", "admin/servicios/" . $id . "/activar");
+
+    if ($resActivar["ok"]) {
+        $mensaje = $resActivar["datos"]["message"] ?? "Servicio activado correctamente.";
+        $tipoMensaje = "ok";
+    } else {
+        $mensaje = $resActivar["datos"]["error"] ?? "No se pudo activar el servicio.";
         $tipoMensaje = "error";
     }
 }
 
 // CARGAR SERVICIOS
-$resServicios = llamarApi("GET", "servicios");
+$resServicios = llamarApi("GET", "admin/servicios");
 
 if ($resServicios["ok"]) {
     $servicios = $resServicios["datos"];
 } else {
     $servicios = [];
-    $mensaje = $resServicios["datos"]["error"] ?? t("admin_services_load_error");
+    $mensaje = $resServicios["datos"]["error"] ?? "No se pudieron cargar los servicios.";
     $tipoMensaje = "error";
 }
 
@@ -104,6 +121,10 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
     </section>
 
+    <section class="panel-grid" style="display:block;">
+        <p><a href="/ProyectoDAW/admin/panel.php">← <?= t("client_back_panel") ?></a></p>
+    </section>
+
     <?php if ($mensaje != ""): ?>
         <section style="margin-top: 18px;">
             <p class="<?= $tipoMensaje === 'ok' ? 'mensaje-ok' : 'mensaje-error' ?>">
@@ -112,33 +133,68 @@ require_once __DIR__ . '/../partials/header.php';
         </section>
     <?php endif; ?>
 
-    <section class="admin-layout">
-        <div class="admin-box">
+    <section class="admin-services-layout admin-services-layout--stack">
+        <section class="admin-box admin-services-form-box">
             <div class="admin-box__top">
                 <h2><?= t("admin_services_new_title") ?></h2>
                 <p><?= t("admin_services_new_subtitle") ?></p>
             </div>
 
-            <form class="auth-form" method="POST">
-                <div class="auth-field">
-                    <input type="text" name="nombre" placeholder="<?= t("admin_services_name_placeholder") ?>" required>
+            <form class="auth-form" method="POST" id="formCrearServicio" novalidate>
+                <div class="auth-field" id="field_nombre">
+                    <input
+                        type="text"
+                        name="nombre"
+                        id="nombre"
+                        placeholder="<?= t("admin_services_name_placeholder") ?>"
+                        required
+                    >
                 </div>
+                <span id="error_nombre" class="input-error"></span>
 
-                <div class="auth-field">
-                    <input type="number" name="duracion" placeholder="<?= t("admin_services_duration_placeholder") ?>" min="1" required>
+                <div class="auth-field auth-field--textarea" id="field_descripcion">
+                    <textarea
+                        name="descripcion"
+                        id="descripcion"
+                        placeholder="Descripción del servicio"
+                        rows="4"
+                        required
+                    ></textarea>
                 </div>
+                <span id="error_descripcion" class="input-error"></span>
 
-                <div class="auth-field">
-                    <input type="number" step="0.01" name="precio" placeholder="<?= t("admin_services_price_placeholder") ?>" min="0.01" required>
+                <div class="auth-field" id="field_duracion">
+                    <input
+                        type="number"
+                        name="duracion"
+                        id="duracion"
+                        placeholder="<?= t("admin_services_duration_placeholder") ?>"
+                        min="1"
+                        required
+                    >
                 </div>
+                <span id="error_duracion" class="input-error"></span>
+
+                <div class="auth-field" id="field_precio">
+                    <input
+                        type="number"
+                        step="0.01"
+                        name="precio"
+                        id="precio"
+                        placeholder="<?= t("admin_services_price_placeholder") ?>"
+                        min="0.01"
+                        required
+                    >
+                </div>
+                <span id="error_precio" class="input-error"></span>
 
                 <button class="auth-btn" type="submit" name="crear">
                     <?= t("admin_services_add_button") ?>
                 </button>
             </form>
-        </div>
+        </section>
 
-        <div class="admin-box">
+        <section class="admin-box admin-services-table-box">
             <div class="admin-box__top">
                 <h2><?= t("admin_services_list_title") ?></h2>
                 <p><?= t("admin_services_list_subtitle") ?></p>
@@ -147,47 +203,72 @@ require_once __DIR__ . '/../partials/header.php';
             <?php if (empty($servicios)): ?>
                 <p class="sin-resultados"><?= t("admin_services_empty") ?></p>
             <?php else: ?>
-                <div class="panel-table-wrap">
-                    <table class="panel-table">
+                <div class="panel-table-wrap admin-services-table-wrap">
+                    <table class="panel-table admin-services-table">
                         <thead>
                             <tr>
-                                <th><?= t("admin_services_table_service") ?></th>
-                                <th><?= t("admin_services_table_duration") ?></th>
-                                <th><?= t("admin_services_table_price") ?></th>
-                                <th><?= t("admin_services_table_actions") ?></th>
+                                <th>Servicio</th>
+                                <th>Descripción</th>
+                                <th>Duración</th>
+                                <th>Precio</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             <?php foreach ($servicios as $servicio): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($servicio["nombre"]) ?></td>
-                                    <td><?= htmlspecialchars($servicio["duracion"]) ?> <?= t("admin_services_minutes") ?></td>
-                                    <td><?= number_format((float) $servicio["precio"], 2, ",", ".") ?> €</td>
-                                    <td class="acciones-tabla">
-                                        <button
-                                            type="button"
-                                            class="btn-tabla btn-reservar"
-                                            onclick="abrirModalEditarServicio(
-                                                '<?= $servicio['id_servicio'] ?>',
-                                                '<?= htmlspecialchars($servicio['nombre'], ENT_QUOTES) ?>',
-                                                '<?= $servicio['duracion'] ?>',
-                                                '<?= $servicio['precio'] ?>'
-                                            )"
-                                        >
-                                            <?= t("admin_services_edit_button") ?>
-                                        </button>
+                                    <td class="admin-services-col-name">
+                                        <?= htmlspecialchars($servicio["nombre"]) ?>
+                                    </td>
+                                    <td class="admin-services-col-description">
+                                        <?= nl2br(htmlspecialchars($servicio["descripcion"] ?? "")) ?>
+                                    </td>
+                                    <td class="admin-services-col-duration">
+                                        <?= htmlspecialchars($servicio["duracion"]) ?> min
+                                    </td>
+                                    <td class="admin-services-col-price">
+                                        <?= number_format((float) $servicio["precio"], 2, ",", ".") ?> €
+                                    </td>
+                                    <td class="admin-services-col-status">
+                                        <?= ((int) ($servicio["activo"] ?? 1) === 1) ? "Activo" : "Desactivado" ?>
+                                    </td>
+                                    <td class="admin-services-actions-cell">
+                                        <div class="acciones-tabla admin-services-actions">
+                                            <button
+                                                type="button"
+                                                class="btn-tabla btn-reservar"
+                                                onclick="abrirModalEditarServicio(
+                                                    '<?= $servicio['id_servicio'] ?>',
+                                                    '<?= htmlspecialchars($servicio['nombre'], ENT_QUOTES) ?>',
+                                                    '<?= htmlspecialchars($servicio['descripcion'] ?? '', ENT_QUOTES) ?>',
+                                                    '<?= $servicio['duracion'] ?>',
+                                                    '<?= $servicio['precio'] ?>'
+                                                )"
+                                            >
+                                                Editar
+                                            </button>
 
-                                        <button
-                                            type="button"
-                                            class="btn-tabla btn-anular"
-                                            onclick="abrirModalEliminarServicio(
-                                                '<?= $servicio['id_servicio'] ?>',
-                                                '<?= htmlspecialchars($servicio['nombre'], ENT_QUOTES) ?>'
-                                            )"
-                                        >
-                                            <?= t("admin_services_delete_button") ?>
-                                        </button>
+                                            <?php if ((int) ($servicio["activo"] ?? 1) === 1): ?>
+                                                <button
+                                                    type="button"
+                                                    class="btn-tabla btn-anular"
+                                                    onclick="abrirModalDesactivarServicio(
+                                                        '<?= $servicio['id_servicio'] ?>',
+                                                        '<?= htmlspecialchars($servicio['nombre'], ENT_QUOTES) ?>'
+                                                    )"
+                                                >
+                                                    Desactivar
+                                                </button>
+                                            <?php else: ?>
+                                                <form method="POST" style="margin:0;">
+                                                    <input type="hidden" name="id_servicio" value="<?= $servicio["id_servicio"] ?>">
+                                                    <button type="submit" name="activar" class="btn-tabla btn-reservar">
+                                                        Activar
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -195,11 +276,10 @@ require_once __DIR__ . '/../partials/header.php';
                     </table>
                 </div>
             <?php endif; ?>
-        </div>
+        </section>
     </section>
 </main>
 
-<!-- MODAL EDITAR -->
 <div id="modalEditarServicio" class="modal-confirmacion">
     <div class="modal-box">
         <div class="modal-top">
@@ -207,10 +287,10 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
 
         <div class="modal-body">
-            <form method="POST" class="auth-form" id="formEditarServicio">
+            <form method="POST" class="auth-form" id="formEditarServicio" novalidate>
                 <input type="hidden" name="id_servicio" id="editar_id_servicio">
 
-                <div class="auth-field">
+                <div class="auth-field" id="field_editar_nombre">
                     <input
                         type="text"
                         name="nombre_editar"
@@ -219,8 +299,20 @@ require_once __DIR__ . '/../partials/header.php';
                         required
                     >
                 </div>
+                <span id="error_editar_nombre" class="input-error"></span>
 
-                <div class="auth-field">
+                <div class="auth-field auth-field--textarea" id="field_editar_descripcion">
+                    <textarea
+                        name="descripcion_editar"
+                        id="editar_descripcion"
+                        placeholder="Descripción del servicio"
+                        rows="4"
+                        required
+                    ></textarea>
+                </div>
+                <span id="error_editar_descripcion" class="input-error"></span>
+
+                <div class="auth-field" id="field_editar_duracion">
                     <input
                         type="number"
                         name="duracion_editar"
@@ -230,8 +322,9 @@ require_once __DIR__ . '/../partials/header.php';
                         required
                     >
                 </div>
+                <span id="error_editar_duracion" class="input-error"></span>
 
-                <div class="auth-field">
+                <div class="auth-field" id="field_editar_precio">
                     <input
                         type="number"
                         step="0.01"
@@ -242,6 +335,7 @@ require_once __DIR__ . '/../partials/header.php';
                         required
                     >
                 </div>
+                <span id="error_editar_precio" class="input-error"></span>
             </form>
         </div>
 
@@ -256,32 +350,31 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
 </div>
 
-<!-- MODAL ELIMINAR -->
-<div id="modalEliminarServicio" class="modal-confirmacion">
+<div id="modalDesactivarServicio" class="modal-confirmacion">
     <div class="modal-box">
         <div class="modal-top">
-            <h3><?= t("admin_services_modal_delete_title") ?></h3>
+            <h3>Desactivar servicio</h3>
         </div>
 
         <div class="modal-body">
-            <p id="textoModalEliminarServicio"></p>
+            <p id="textoModalDesactivarServicio"></p>
         </div>
 
         <div class="modal-actions">
-            <button type="button" class="modal-btn modal-btn-cancelar" onclick="cerrarModalEliminarServicio()">
+            <button type="button" class="modal-btn modal-btn-cancelar" onclick="cerrarModalDesactivarServicio()">
                 <?= t("cancel") ?>
             </button>
 
             <form method="POST" style="margin:0;">
-                <input type="hidden" name="id_servicio" id="eliminar_id_servicio">
-                <button type="submit" name="eliminar" class="modal-btn modal-btn-peligro">
-                    <?= t("confirm_delete") ?>
+                <input type="hidden" name="id_servicio" id="desactivar_id_servicio">
+                <button type="submit" name="desactivar" class="modal-btn modal-btn-peligro">
+                    Desactivar
                 </button>
             </form>
         </div>
     </div>
 </div>
 
-<script src="/ProyectoDAW/js/admin_servicios.js"></script>
+<script src="/ProyectoDAW/admin/js/servicios.js"></script>
 
 <?php Html::finHtml(); ?>

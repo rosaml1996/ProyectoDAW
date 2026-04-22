@@ -10,7 +10,6 @@ class ServiciosController
     public static function getAll(): void
     {
         try {
-            // Público para cliente y admin: solo servicios activos
             $servicios = ServiciosRepository::getActivos();
             Response::json($servicios);
         } catch (Throwable $e) {
@@ -131,7 +130,6 @@ class ServiciosController
                 Response::json(['error' => 'El servicio que intentas desactivar no existe.'], 404);
             }
 
-            // Si tiene citas futuras reservadas, no permitir desactivar
             if (ServiciosRepository::tieneCitasFuturasReservadas((int) $id)) {
                 Response::json([
                     'error' => 'No se puede desactivar el servicio porque tiene citas futuras reservadas.'

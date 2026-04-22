@@ -78,7 +78,8 @@ class ServiciosRepository
                 WHERE id_servicio = :id";
 
         $st = $pdo->prepare($sql);
-        $st->execute([
+
+        return $st->execute([
             ':nombre' => $nombre,
             ':descripcion' => $descripcion,
             ':duracion' => $duracion,
@@ -86,8 +87,6 @@ class ServiciosRepository
             ':activo' => $activo,
             ':id' => $id
         ]);
-
-        return $st->rowCount() === 1;
     }
 
     public static function desactivar(int $id): bool
@@ -126,7 +125,6 @@ class ServiciosRepository
 
     public static function delete($id): bool
     {
-        // Ya no se usa borrado físico. Se deja por compatibilidad interna.
         return self::desactivar((int) $id);
     }
 

@@ -682,6 +682,27 @@ footer p {
   opacity: .55;
 }
 
+.auth-field--textarea {
+  align-items: stretch;
+}
+
+.auth-field--textarea textarea {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 110px;
+  color: #1c1c1c;
+  padding: 6px 0;
+}
+
+.auth-field--textarea textarea::placeholder {
+  opacity: .55;
+}
+
 .auth-btn {
   margin-top: 6px;
   padding: 14px 18px;
@@ -1172,16 +1193,106 @@ footer p {
 
 .input-error {
   display: block;
-  min-height: 18px;
-  margin: -4px 2px 6px;
+  margin: -6px 2px 0;
   font-size: 13px;
   color: #b42318;
   text-align: left;
+  line-height: 1.2;
+  min-height: 0;
+}
+
+.input-error:empty {
+  display: none;
 }
 
 .auth-field-error {
   border-color: #b42318 !important;
   box-shadow: 0 10px 22px rgba(180, 35, 24, 0.12) !important;
+}
+
+/* ===================== ADMIN SERVICIOS ===================== */
+
+.admin-services-layout {
+  margin-top: 22px;
+  display: grid;
+  gap: 22px;
+}
+
+.admin-services-layout--stack {
+  grid-template-columns: 1fr;
+}
+
+.admin-services-form-box {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.admin-services-table-box {
+  width: 100%;
+}
+
+.admin-services-form-box .auth-form {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  gap: 8px;
+}
+
+.admin-services-form-box .auth-field {
+  padding: 10px 14px;
+}
+
+.admin-services-form-box .auth-field--textarea textarea {
+  min-height: 82px;
+}
+
+.admin-services-form-box .auth-btn {
+  margin-top: 2px;
+}
+
+.admin-services-table-wrap {
+  margin-top: 18px;
+}
+
+.admin-services-table {
+  table-layout: fixed;
+  min-width: 980px;
+}
+
+.admin-services-table th,
+.admin-services-table td {
+  vertical-align: top;
+}
+
+.admin-services-col-name {
+  width: 18%;
+  min-width: 180px;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.admin-services-col-description {
+  width: 32%;
+  min-width: 280px;
+  line-height: 1.45;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.admin-services-col-duration,
+.admin-services-col-price,
+.admin-services-col-status {
+  white-space: nowrap;
+}
+
+.admin-services-actions-cell {
+  vertical-align: top;
+}
+
+.admin-services-actions {
+  min-width: 170px;
+  align-items: flex-start;
 }
 
 /* ===================== MEDIA QUERIES ===================== */
