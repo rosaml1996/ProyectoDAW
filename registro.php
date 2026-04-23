@@ -15,10 +15,10 @@ $email = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $nombre = $_POST["nombre"] ?? "";
-    $fechaNacimiento = $_POST["fecha_nacimiento"] ?? "";
-    $telefono = $_POST["telefono"] ?? "";
-    $email = $_POST["email"] ?? "";
+    $nombre = trim($_POST["nombre"] ?? "");
+    $fechaNacimiento = trim($_POST["fecha_nacimiento"] ?? "");
+    $telefono = trim($_POST["telefono"] ?? "");
+    $email = trim($_POST["email"] ?? "");
     $clave = $_POST["clave"] ?? "";
     $repetirClave = $_POST["repetir_clave"] ?? "";
 
@@ -81,74 +81,93 @@ require_once __DIR__ . '/partials/header.php';
                     <p class="mensaje-ok"><?= htmlspecialchars($mensaje) ?></p>
                 <?php endif; ?>
 
-                <form class="auth-form" method="POST">
-                    <div class="auth-field">
-                        <input
-                            type="text"
-                            name="nombre"
-                            placeholder="<?= t("register_name_placeholder") ?>"
-                            required
-                            value="<?= $nombre ? htmlspecialchars($nombre) : '' ?>"
-                            autocomplete="name"
-                        >
+                <form class="auth-form" method="POST" id="registerForm" novalidate>
+                    <div class="auth-input-group">
+                        <div class="auth-field">
+                            <input
+                                type="text"
+                                name="nombre"
+                                placeholder="<?= t("register_name_placeholder") ?>"
+                                value="<?= $nombre ? htmlspecialchars($nombre) : '' ?>"
+                                autocomplete="name"
+                            >
+                        </div>
+                        <div class="input-error" data-error-for="nombre"></div>
                     </div>
 
-                    <div class="auth-field">
-                        <label for="fecha_nacimiento"><?= t("register_birthdate") ?></label>
-                        <input
-                            type="date"
-                            name="fecha_nacimiento"
-                            placeholder="<?= t("register_birthdate") ?>"
-                            required
-                            value="<?= $fechaNacimiento ? htmlspecialchars($fechaNacimiento) : '' ?>"
-                            autocomplete="bday"
-                            aria-label="<?= t("register_birthdate") ?>"
-                            title="<?= t("register_birthdate") ?>"
-                        >
+                    <div class="auth-input-group">
+                        <div class="auth-inline-row">
+                            <div class="auth-field auth-field--static">
+                                <span><?= t("register_birthdate") ?></span>
+                            </div>
+
+                            <div class="auth-field">
+                                <input
+                                    type="date"
+                                    name="fecha_nacimiento"
+                                    value="<?= $fechaNacimiento ? htmlspecialchars($fechaNacimiento) : '' ?>"
+                                    autocomplete="bday"
+                                    aria-label="<?= t("register_birthdate") ?>"
+                                    title="<?= t("register_birthdate") ?>"
+                                    max="<?= date('Y-m-d') ?>"
+                                >
+                            </div>
+                        </div>
+                        <div class="input-error" data-error-for="fecha_nacimiento"></div>
                     </div>
 
-                    <div class="auth-field">
-                        <input
-                            type="text"
-                            name="telefono"
-                            placeholder="<?= t("register_phone_placeholder") ?>"
-                            required
-                            value="<?= $telefono ? htmlspecialchars($telefono) : '' ?>"
-                            autocomplete="tel"
-                        >
+                    <div class="auth-input-group">
+                        <div class="auth-field">
+                            <input
+                                type="tel"
+                                name="telefono"
+                                placeholder="<?= t("register_phone_placeholder") ?>"
+                                value="<?= $telefono ? htmlspecialchars($telefono) : '' ?>"
+                                autocomplete="tel"
+                                inputmode="numeric"
+                                maxlength="9"
+                            >
+                        </div>
+                        <div class="input-error" data-error-for="telefono"></div>
                     </div>
 
-                    <div class="auth-field">
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="<?= t("register_email_placeholder") ?>"
-                            required
-                            value="<?= $email ? htmlspecialchars($email) : '' ?>"
-                            autocomplete="email"
-                        >
+                    <div class="auth-input-group">
+                        <div class="auth-field">
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="<?= t("register_email_placeholder") ?>"
+                                value="<?= $email ? htmlspecialchars($email) : '' ?>"
+                                autocomplete="email"
+                            >
+                        </div>
+                        <div class="input-error" data-error-for="email"></div>
                     </div>
 
-                    <div class="auth-field">
-                        <input
-                            type="password"
-                            name="clave"
-                            placeholder="<?= t("register_password_placeholder") ?>"
-                            required
-                            value=""
-                            autocomplete="new-password"
-                        >
+                    <div class="auth-input-group">
+                        <div class="auth-field">
+                            <input
+                                type="password"
+                                name="clave"
+                                placeholder="<?= t("register_password_placeholder") ?>"
+                                value=""
+                                autocomplete="new-password"
+                            >
+                        </div>
+                        <div class="input-error" data-error-for="clave"></div>
                     </div>
 
-                    <div class="auth-field">
-                        <input
-                            type="password"
-                            name="repetir_clave"
-                            placeholder="<?= t("register_repeat_password_placeholder") ?>"
-                            required
-                            value=""
-                            autocomplete="new-password"
-                        >
+                    <div class="auth-input-group">
+                        <div class="auth-field">
+                            <input
+                                type="password"
+                                name="repetir_clave"
+                                placeholder="<?= t("register_repeat_password_placeholder") ?>"
+                                value=""
+                                autocomplete="new-password"
+                            >
+                        </div>
+                        <div class="input-error" data-error-for="repetir_clave"></div>
                     </div>
 
                     <button class="auth-btn" type="submit">
@@ -163,5 +182,7 @@ require_once __DIR__ . '/partials/header.php';
         </div>
     </section>
 </main>
+
+<script src="/ProyectoDAW/js/registro.js" defer></script>
 
 <?php Html::finHtml(); ?>

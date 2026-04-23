@@ -12,8 +12,8 @@ $email = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Recogemos los datos
-    $email = $_POST["email"] ?? "";
-    $clave = $_POST["clave"] ?? "";
+    $email = trim($_POST["email"] ?? "");
+    $clave = trim($_POST["clave"] ?? "");
 
     // Llamamos a la API para hacer login
     $res = llamarApi("POST", "login", [
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
 
     } else {
-        // Error (traducible)
+        // Error
         $error = $res["datos"]["error"] ?? t("error_login_default");
     }
 }
@@ -72,26 +72,30 @@ require_once __DIR__ . '/partials/header.php';
                     </div>
                 <?php endif; ?>
 
-                <form class="auth-form" method="POST">
-                    <div class="auth-field">
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="<?= t("login_email_placeholder") ?>"
-                            required
-                            value="<?= htmlspecialchars($email) ?>"
-                            autocomplete="email"
-                        >
+                <form class="auth-form" method="POST" id="loginForm" novalidate>
+                    <div class="auth-input-group">
+                        <div class="auth-field">
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="<?= t("login_email_placeholder") ?>"
+                                value="<?= htmlspecialchars($email) ?>"
+                                autocomplete="email"
+                            >
+                        </div>
+                        <div class="input-error" data-error-for="email"></div>
                     </div>
 
-                    <div class="auth-field">
-                        <input
-                            type="password"
-                            name="clave"
-                            placeholder="<?= t("login_password_placeholder") ?>"
-                            required
-                            autocomplete="new-password"
-                        >
+                    <div class="auth-input-group">
+                        <div class="auth-field">
+                            <input
+                                type="password"
+                                name="clave"
+                                placeholder="<?= t("login_password_placeholder") ?>"
+                                autocomplete="current-password"
+                            >
+                        </div>
+                        <div class="input-error" data-error-for="clave"></div>
                     </div>
 
                     <button class="auth-btn" type="submit">
@@ -109,5 +113,7 @@ require_once __DIR__ . '/partials/header.php';
         </div>
     </section>
 </main>
+
+<script src="/ProyectoDAW/js/login.js" defer></script>
 
 <?php Html::finHtml(); ?>

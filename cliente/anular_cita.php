@@ -215,6 +215,6 @@ require_once __DIR__ . '/../partials/header.php';
     </div>
 </div>
 
-<script src="/ProyectoDAW/js/modales.js"></script>
+<script src="/ProyectoDAW/cliente/js/modales.js"></script>
 
 <?php Html::finHtml(); ?>

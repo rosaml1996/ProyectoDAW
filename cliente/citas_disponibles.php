@@ -108,14 +108,32 @@ require_once __DIR__ . '/../partials/header.php';
 
             <form method="GET" class="auth-form">
                 <div class="auth-field">
-                    <select name="id_servicio" required style="width:100%; border:none; background:transparent; outline:none; font-family:inherit;">
+                    <select
+                        name="id_servicio"
+                        id="id_servicio"
+                        required
+                        style="width:100%; border:none; background:transparent; outline:none; font-family:inherit;"
+                    >
                         <option value="">Selecciona un servicio</option>
                         <?php foreach ($servicios as $servicio): ?>
-                            <option value="<?= $servicio["id_servicio"] ?>" <?= ($idServicio == $servicio["id_servicio"]) ? 'selected' : '' ?>>
+                            <option
+                                value="<?= $servicio["id_servicio"] ?>"
+                                data-descripcion="<?= htmlspecialchars($servicio["descripcion"] ?? "", ENT_QUOTES) ?>"
+                                <?= ($idServicio == $servicio["id_servicio"]) ? 'selected' : '' ?>
+                            >
                                 <?= htmlspecialchars($servicio["nombre"]) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+
+                <div
+                    id="descripcionServicioBox"
+                    class="sin-resultados"
+                    style="text-align:left; margin-top: 6px; display:none;"
+                >
+                    <strong>Descripción:</strong><br>
+                    <span id="descripcionServicioTexto"></span>
                 </div>
 
                 <div class="auth-field">
@@ -171,5 +189,7 @@ require_once __DIR__ . '/../partials/header.php';
         <?php endif; ?>
     </section>
 </main>
+
+<script src="/ProyectoDAW/cliente/js/citas_disponibles.js"></script>
 
 <?php Html::finHtml(); ?>
