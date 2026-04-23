@@ -93,4 +93,60 @@ class BloqueosRepository
 
         return $st->rowCount() === 1;
     }
+
+    public static function existeSolape(string $fecha, ?string $hora_inicio, ?string $hora_fin, ?int $ignorarId = null): bool
+    {
+        $pdo = db();
+
+        if ($hora_inicio === null && $hora_fin === null) {
+            $sql = "SELECT COUNT(*) AS total
+                    FROM bloqueo_agenda
+                    WHERE fecha = :fecha";
+
+            $params = [
+                ':fecha' => $fecha
+            ];
+
+            if ($ignorarId !== null) {
+                $sql .= " AND id_bloqueo <> :ignorar_id";
+                $params[':ignorar_id'] = $ignorarId;
+            }
+
+            $st = $pdo->prepare($sql);
+            $st->execute($params);
+            $fila = $st->fetch();
+
+            return (int) ($fila['total'] ?? 0) > 0;
+        }
+
+        $sql = "SELECT COUNT(*) AS total
+                FROM bloqueo_agenda
+                WHERE fecha = :fecha
+                  AND (
+                        (hora_inicio IS NULL AND hora_fin IS NULL)
+                        OR (
+                            hora_inicio IS NOT NULL
+                            AND hora_fin IS NOT NULL
+                            AND :hora_inicio < hora_fin
+                            AND :hora_fin > hora_inicio
+                        )
+                      )";
+
+        $params = [
+            ':fecha' => $fecha,
+            ':hora_inicio' => $hora_inicio,
+            ':hora_fin' => $hora_fin
+        ];
+
+        if ($ignorarId !== null) {
+            $sql .= " AND id_bloqueo <> :ignorar_id";
+            $params[':ignorar_id'] = $ignorarId;
+        }
+
+        $st = $pdo->prepare($sql);
+        $st->execute($params);
+        $fila = $st->fetch();
+
+        return (int) ($fila['total'] ?? 0) > 0;
+    }
 }

@@ -206,7 +206,7 @@ return [
     'client_nav_logout' => 'Log out',
 
     'client_my_appointments_page_title' => 'My appointments',
-    'client_my_appointments_page_subtitle' => 'Here you can check your upcoming appointments and review previous ones.',
+    "client_my_appointments_page_subtitle" => "Here you can view your upcoming appointments and your history.",
     'client_back_panel' => 'Back to panel',
 
     'client_upcoming_appointments_title' => 'Upcoming appointments',

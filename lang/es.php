@@ -206,7 +206,7 @@ return [
     'client_nav_logout' => 'Cerrar sesión',
 
     'client_my_appointments_page_title' => 'Mis citas',
-    'client_my_appointments_page_subtitle' => 'Aquí puedes consultar tus próximas citas y revisar las anteriores.',
+    "client_my_appointments_page_subtitle" => "Aquí puedes consultar todas tus próximas citas.",
     'client_back_panel' => 'Volver al panel',
 
     'client_upcoming_appointments_title' => 'Próximas citas',

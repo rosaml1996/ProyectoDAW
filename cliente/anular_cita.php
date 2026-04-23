@@ -23,6 +23,76 @@ function esCitaPasada($fecha, $hora)
     return $fechaHoraCita < time();
 }
 
+function valorOrdenableCita($cita, $campo)
+{
+    if ($campo === "fecha") {
+        return $cita["fecha"] ?? "";
+    }
+
+    if ($campo === "hora") {
+        return $cita["hora"] ?? "";
+    }
+
+    if ($campo === "duracion" || $campo === "precio") {
+        return (float) ($cita[$campo] ?? 0);
+    }
+
+    return mb_strtolower(trim((string) ($cita[$campo] ?? "")));
+}
+
+function ordenarCitas(array $citas, string $campo, string $direccion): array
+{
+    usort($citas, function ($a, $b) use ($campo, $direccion) {
+        $valorA = valorOrdenableCita($a, $campo);
+        $valorB = valorOrdenableCita($b, $campo);
+
+        if ($valorA == $valorB) {
+            return 0;
+        }
+
+        if ($direccion === "desc") {
+            return ($valorA < $valorB) ? 1 : -1;
+        }
+
+        return ($valorA < $valorB) ? -1 : 1;
+    });
+
+    return $citas;
+}
+
+function urlOrdenCitas(string $paramSort, string $paramDir, string $campo, string $campoActual, string $dirActual): string
+{
+    $params = $_GET;
+
+    $nuevaDir = "asc";
+    if ($campoActual === $campo && $dirActual === "asc") {
+        $nuevaDir = "desc";
+    }
+
+    $params[$paramSort] = $campo;
+    $params[$paramDir] = $nuevaDir;
+
+    return "?" . http_build_query($params);
+}
+
+function indicadorOrdenCitas(string $campo, string $campoActual, string $dirActual): string
+{
+    if ($campo !== $campoActual) {
+        return "↕";
+    }
+
+    return $dirActual === "asc" ? "↑" : "↓";
+}
+
+function thOrdenableCitas(string $paramSort, string $paramDir, string $campo, string $texto, string $campoActual, string $dirActual): string
+{
+    $url = htmlspecialchars(urlOrdenCitas($paramSort, $paramDir, $campo, $campoActual, $dirActual));
+    $indicador = indicadorOrdenCitas($campo, $campoActual, $dirActual);
+    $clase = $campo === $campoActual ? "table-sort-link active" : "table-sort-link";
+
+    return '<a class="' . $clase . '" href="' . $url . '">' . htmlspecialchars($texto) . ' <span class="table-sort-indicator">' . $indicador . '</span></a>';
+}
+
 $resUsuario = llamarApi("GET", "me");
 
 if (!$resUsuario["ok"]) {
@@ -36,6 +106,22 @@ $citas = [];
 $proximasCitas = [];
 $citasPasadas = [];
 $hayErrorCarga = false;
+
+$sortProximas = $_GET["sort_proximas"] ?? "fecha";
+$dirProximas = strtolower($_GET["dir_proximas"] ?? "asc") === "desc" ? "desc" : "asc";
+
+$sortHistorial = $_GET["sort_historial"] ?? "fecha";
+$dirHistorial = strtolower($_GET["dir_historial"] ?? "desc") === "asc" ? "asc" : "desc";
+
+$camposPermitidos = ["fecha", "hora", "servicio", "duracion", "precio", "estado"];
+
+if (!in_array($sortProximas, $camposPermitidos, true)) {
+    $sortProximas = "fecha";
+}
+
+if (!in_array($sortHistorial, $camposPermitidos, true)) {
+    $sortHistorial = "fecha";
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $idCita = $_POST["id_cita"] ?? "";
@@ -63,12 +149,17 @@ if ($resCitas["ok"] && isset($resCitas["datos"]) && is_array($resCitas["datos"])
             continue;
         }
 
-        if (esCitaPasada($cita["fecha"], $cita["hora"])) {
-            $citasPasadas[] = $cita;
-        } else {
+        $estado = $cita["estado"] ?? "";
+
+        if ($estado === "reservada" && !esCitaPasada($cita["fecha"], $cita["hora"])) {
             $proximasCitas[] = $cita;
+        } else {
+            $citasPasadas[] = $cita;
         }
     }
+
+    $proximasCitas = ordenarCitas($proximasCitas, $sortProximas, $dirProximas);
+    $citasPasadas = ordenarCitas($citasPasadas, $sortHistorial, $dirHistorial);
 } else {
     $hayErrorCarga = true;
     $mensaje = $resCitas["datos"]["error"] ?? t("client_appointments_load_error");
@@ -115,11 +206,11 @@ require_once __DIR__ . '/../partials/header.php';
                         <table class="panel-table">
                             <thead>
                                 <tr>
-                                    <th><?= t("client_table_date") ?></th>
-                                    <th><?= t("client_table_time") ?></th>
-                                    <th><?= t("client_table_service") ?></th>
-                                    <th><?= t("client_table_duration") ?></th>
-                                    <th><?= t("client_table_price") ?></th>
+                                    <th><?= thOrdenableCitas("sort_proximas", "dir_proximas", "fecha", t("client_table_date"), $sortProximas, $dirProximas) ?></th>
+                                    <th><?= thOrdenableCitas("sort_proximas", "dir_proximas", "hora", t("client_table_time"), $sortProximas, $dirProximas) ?></th>
+                                    <th><?= thOrdenableCitas("sort_proximas", "dir_proximas", "servicio", t("client_table_service"), $sortProximas, $dirProximas) ?></th>
+                                    <th><?= thOrdenableCitas("sort_proximas", "dir_proximas", "duracion", t("client_table_duration"), $sortProximas, $dirProximas) ?></th>
+                                    <th><?= thOrdenableCitas("sort_proximas", "dir_proximas", "precio", t("client_table_price"), $sortProximas, $dirProximas) ?></th>
                                     <th><?= t("client_table_action") ?></th>
                                 </tr>
                             </thead>
@@ -154,7 +245,7 @@ require_once __DIR__ . '/../partials/header.php';
             </div>
 
             <div class="bloque-citas">
-                <h2 class="titulo-seccion-panel"><?= t("client_past_appointments_title") ?></h2>
+                <h2 class="titulo-seccion-panel">Historial de citas</h2>
 
                 <?php if (empty($citasPasadas)): ?>
                     <p class="sin-resultados"><?= t("client_past_appointments_empty") ?></p>
@@ -163,11 +254,12 @@ require_once __DIR__ . '/../partials/header.php';
                         <table class="panel-table">
                             <thead>
                                 <tr>
-                                    <th><?= t("client_table_date") ?></th>
-                                    <th><?= t("client_table_time") ?></th>
-                                    <th><?= t("client_table_service") ?></th>
-                                    <th><?= t("client_table_duration") ?></th>
-                                    <th><?= t("client_table_price") ?></th>
+                                    <th><?= thOrdenableCitas("sort_historial", "dir_historial", "fecha", t("client_table_date"), $sortHistorial, $dirHistorial) ?></th>
+                                    <th><?= thOrdenableCitas("sort_historial", "dir_historial", "hora", t("client_table_time"), $sortHistorial, $dirHistorial) ?></th>
+                                    <th><?= thOrdenableCitas("sort_historial", "dir_historial", "servicio", t("client_table_service"), $sortHistorial, $dirHistorial) ?></th>
+                                    <th><?= thOrdenableCitas("sort_historial", "dir_historial", "duracion", t("client_table_duration"), $sortHistorial, $dirHistorial) ?></th>
+                                    <th><?= thOrdenableCitas("sort_historial", "dir_historial", "precio", t("client_table_price"), $sortHistorial, $dirHistorial) ?></th>
+                                    <th><?= thOrdenableCitas("sort_historial", "dir_historial", "estado", t("client_table_status"), $sortHistorial, $dirHistorial) ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -178,6 +270,7 @@ require_once __DIR__ . '/../partials/header.php';
                                         <td><?= htmlspecialchars($cita["servicio"]) ?></td>
                                         <td><?= htmlspecialchars($cita["duracion"]) ?> <?= t("minutes_short") ?></td>
                                         <td><?= htmlspecialchars($cita["precio"]) ?> €</td>
+                                        <td><?= htmlspecialchars($cita["estado"] ?? "-") ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

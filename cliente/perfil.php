@@ -34,10 +34,10 @@ if ($resPerfil["ok"]) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $nombre = $_POST["nombre"] ?? "";
-    $fechaNacimiento = $_POST["fecha_nacimiento"] ?? "";
-    $telefono = $_POST["telefono"] ?? "";
-    $email = $_POST["email"] ?? "";
+    $nombre = trim($_POST["nombre"] ?? "");
+    $fechaNacimiento = trim($_POST["fecha_nacimiento"] ?? "");
+    $telefono = trim($_POST["telefono"] ?? "");
+    $email = trim($_POST["email"] ?? "");
     $clave = $_POST["clave"] ?? "";
     $repetirClave = $_POST["repetir_clave"] ?? "";
 
@@ -151,25 +151,29 @@ require_once __DIR__ . '/../partials/header.php';
                     </div>
                     <span id="errorEmail" class="input-error"></span>
 
-                    <div class="auth-field">
+                    <div class="auth-field" id="claveField">
                         <input
                             type="password"
                             name="clave"
+                            id="clave"
                             placeholder="<?= t("client_profile_password_placeholder") ?>"
                             value=""
                             autocomplete="new-password"
                         >
                     </div>
+                    <span id="errorClave" class="input-error"></span>
 
-                    <div class="auth-field">
+                    <div class="auth-field" id="repetirClaveField">
                         <input
                             type="password"
                             name="repetir_clave"
+                            id="repetir_clave"
                             placeholder="<?= t("client_profile_repeat_password_placeholder") ?>"
                             value=""
                             autocomplete="new-password"
                         >
                     </div>
+                    <span id="errorRepetirClave" class="input-error"></span>
 
                     <button class="auth-btn" type="submit">
                         <?= t("save_changes") ?>

@@ -36,6 +36,30 @@ window.addEventListener("click", function (e) {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
+    const botonesEditar = document.querySelectorAll(".btn-editar-servicio");
+    const botonesDesactivar = document.querySelectorAll(".btn-desactivar-servicio");
+
+    botonesEditar.forEach(function (boton) {
+        boton.addEventListener("click", function () {
+            abrirModalEditarServicio(
+                boton.dataset.idServicio,
+                boton.dataset.nombre,
+                boton.dataset.descripcion,
+                boton.dataset.duracion,
+                boton.dataset.precio
+            );
+        });
+    });
+
+    botonesDesactivar.forEach(function (boton) {
+        boton.addEventListener("click", function () {
+            abrirModalDesactivarServicio(
+                boton.dataset.idServicio,
+                boton.dataset.nombre
+            );
+        });
+    });
+
     const configuraciones = [
         {
             formId: "formCrearServicio",
@@ -135,9 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            const evento = inputEl.tagName.toLowerCase() === "textarea" ? "input" : "input";
-
-            inputEl.addEventListener(evento, function () {
+            inputEl.addEventListener("input", function () {
                 validarCampo(inputEl, fieldEl, errorEl, campo.tipo);
             });
 

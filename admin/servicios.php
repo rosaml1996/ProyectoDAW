@@ -6,6 +6,79 @@ require_once __DIR__ . "/../helpers/i18n.php";
 
 use util\Html;
 
+function valorOrdenableServicio($fila, $campo, $tipo = 'texto')
+{
+    $valor = $fila[$campo] ?? null;
+
+    if ($tipo === 'numero') {
+        return (float) $valor;
+    }
+
+    return mb_strtolower(trim((string) $valor));
+}
+
+function ordenarServicios(array $datos, string $campo, string $direccion = 'asc', string $tipo = 'texto'): array
+{
+    usort($datos, function ($a, $b) use ($campo, $direccion, $tipo) {
+        $valorA = valorOrdenableServicio($a, $campo, $tipo);
+        $valorB = valorOrdenableServicio($b, $campo, $tipo);
+
+        if ($valorA == $valorB) {
+            return 0;
+        }
+
+        if ($direccion === 'desc') {
+            return ($valorA < $valorB) ? 1 : -1;
+        }
+
+        return ($valorA < $valorB) ? -1 : 1;
+    });
+
+    return $datos;
+}
+
+function getOrdenServicios(string $campoPorDefecto, string $dirPorDefecto = 'asc'): array
+{
+    $campo = $_GET['sort'] ?? $campoPorDefecto;
+    $dir = strtolower($_GET['dir'] ?? $dirPorDefecto);
+    $dir = $dir === 'desc' ? 'desc' : 'asc';
+
+    return [$campo, $dir];
+}
+
+function urlOrdenServicios(string $campo, string $campoActual, string $dirActual): string
+{
+    $params = $_GET;
+
+    $nuevaDir = 'asc';
+    if ($campoActual === $campo && $dirActual === 'asc') {
+        $nuevaDir = 'desc';
+    }
+
+    $params['sort'] = $campo;
+    $params['dir'] = $nuevaDir;
+
+    return '?' . http_build_query($params);
+}
+
+function indicadorOrdenServicios(string $campo, string $campoActual, string $dirActual): string
+{
+    if ($campo !== $campoActual) {
+        return '↕';
+    }
+
+    return $dirActual === 'asc' ? '↑' : '↓';
+}
+
+function thOrdenableServicios(string $campo, string $texto, string $campoActual, string $dirActual): string
+{
+    $url = htmlspecialchars(urlOrdenServicios($campo, $campoActual, $dirActual));
+    $indicador = indicadorOrdenServicios($campo, $campoActual, $dirActual);
+    $clase = $campo === $campoActual ? 'table-sort-link active' : 'table-sort-link';
+
+    return '<a class="' . $clase . '" href="' . $url . '">' . htmlspecialchars($texto) . ' <span class="table-sort-indicator">' . $indicador . '</span></a>';
+}
+
 $jwt = $_COOKIE['jwt'] ?? null;
 
 if (!$jwt) {
@@ -100,6 +173,21 @@ if ($resServicios["ok"]) {
     $servicios = [];
     $mensaje = $resServicios["datos"]["error"] ?? "No se pudieron cargar los servicios.";
     $tipoMensaje = "error";
+}
+
+// ORDENACIÓN
+[$sortCampo, $sortDir] = getOrdenServicios('nombre', 'asc');
+
+$camposOrdenables = [
+    'nombre' => 'texto',
+    'descripcion' => 'texto',
+    'duracion' => 'numero',
+    'precio' => 'numero',
+    'activo' => 'numero'
+];
+
+if (isset($camposOrdenables[$sortCampo])) {
+    $servicios = ordenarServicios($servicios, $sortCampo, $sortDir, $camposOrdenables[$sortCampo]);
 }
 
 Html::inicioHtml(t("admin_services_page_title"), [
@@ -207,11 +295,11 @@ require_once __DIR__ . '/../partials/header.php';
                     <table class="panel-table admin-services-table">
                         <thead>
                             <tr>
-                                <th>Servicio</th>
-                                <th>Descripción</th>
-                                <th>Duración</th>
-                                <th>Precio</th>
-                                <th>Estado</th>
+                                <th><?= thOrdenableServicios('nombre', 'Servicio', $sortCampo, $sortDir) ?></th>
+                                <th><?= thOrdenableServicios('descripcion', 'Descripción', $sortCampo, $sortDir) ?></th>
+                                <th><?= thOrdenableServicios('duracion', 'Duración', $sortCampo, $sortDir) ?></th>
+                                <th><?= thOrdenableServicios('precio', 'Precio', $sortCampo, $sortDir) ?></th>
+                                <th><?= thOrdenableServicios('activo', 'Estado', $sortCampo, $sortDir) ?></th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -237,14 +325,12 @@ require_once __DIR__ . '/../partials/header.php';
                                         <div class="acciones-tabla admin-services-actions">
                                             <button
                                                 type="button"
-                                                class="btn-tabla btn-reservar"
-                                                onclick="abrirModalEditarServicio(
-                                                    '<?= $servicio['id_servicio'] ?>',
-                                                    '<?= htmlspecialchars($servicio['nombre'], ENT_QUOTES) ?>',
-                                                    '<?= htmlspecialchars($servicio['descripcion'] ?? '', ENT_QUOTES) ?>',
-                                                    '<?= $servicio['duracion'] ?>',
-                                                    '<?= $servicio['precio'] ?>'
-                                                )"
+                                                class="btn-tabla btn-reservar btn-editar-servicio"
+                                                data-id-servicio="<?= htmlspecialchars((string) $servicio['id_servicio']) ?>"
+                                                data-nombre="<?= htmlspecialchars((string) $servicio['nombre']) ?>"
+                                                data-descripcion="<?= htmlspecialchars((string) ($servicio['descripcion'] ?? '')) ?>"
+                                                data-duracion="<?= htmlspecialchars((string) $servicio['duracion']) ?>"
+                                                data-precio="<?= htmlspecialchars((string) $servicio['precio']) ?>"
                                             >
                                                 Editar
                                             </button>
@@ -252,11 +338,9 @@ require_once __DIR__ . '/../partials/header.php';
                                             <?php if ((int) ($servicio["activo"] ?? 1) === 1): ?>
                                                 <button
                                                     type="button"
-                                                    class="btn-tabla btn-anular"
-                                                    onclick="abrirModalDesactivarServicio(
-                                                        '<?= $servicio['id_servicio'] ?>',
-                                                        '<?= htmlspecialchars($servicio['nombre'], ENT_QUOTES) ?>'
-                                                    )"
+                                                    class="btn-tabla btn-anular btn-desactivar-servicio"
+                                                    data-id-servicio="<?= htmlspecialchars((string) $servicio['id_servicio']) ?>"
+                                                    data-nombre="<?= htmlspecialchars((string) $servicio['nombre']) ?>"
                                                 >
                                                     Desactivar
                                                 </button>

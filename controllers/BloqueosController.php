@@ -65,6 +65,10 @@ class BloqueosController
                 }
             }
 
+            if (BloqueosRepository::existeSolape($fecha, $hora_inicio, $hora_fin)) {
+                Response::json(['error' => 'Ya existe un bloqueo igual o solapado para esa fecha.'], 409);
+            }
+
             $id = BloqueosRepository::create($fecha, $hora_inicio, $hora_fin, $motivo);
 
             if (!$id) {
@@ -132,6 +136,10 @@ class BloqueosController
                 if ($hora_inicio >= $hora_fin) {
                     Response::json(['error' => 'La hora de inicio debe ser menor que la hora de fin.'], 400);
                 }
+            }
+
+            if (BloqueosRepository::existeSolape($fecha, $hora_inicio, $hora_fin, $id)) {
+                Response::json(['error' => 'Ya existe otro bloqueo igual o solapado para esa fecha.'], 409);
             }
 
             $ok = BloqueosRepository::update(

@@ -45,6 +45,10 @@ class HorariosController
                 Response::json(['error' => 'La hora de inicio debe ser menor que la hora de fin.'], 400);
             }
 
+            if (HorariosRepository::existeSolape($dia_semana, $hora_inicio, $hora_fin)) {
+                Response::json(['error' => 'Ya existe un horario igual o solapado para ese día.'], 409);
+            }
+
             $id = HorariosRepository::create($dia_semana, $hora_inicio, $hora_fin, $activo === 0 ? 0 : 1);
 
             if (!$id) {
@@ -92,6 +96,10 @@ class HorariosController
 
             if ($hora_inicio >= $hora_fin) {
                 Response::json(['error' => 'La hora de inicio debe ser menor que la hora de fin.'], 400);
+            }
+
+            if (HorariosRepository::existeSolape($dia_semana, $hora_inicio, $hora_fin, $id)) {
+                Response::json(['error' => 'Ya existe otro horario igual o solapado para ese día.'], 409);
             }
 
             $ok = HorariosRepository::update($id, $dia_semana, $hora_inicio, $hora_fin, $activo === 0 ? 0 : 1);
