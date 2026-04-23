@@ -1076,6 +1076,31 @@ footer p {
   animation: modalIn 0.22s ease;
 }
 
+.table-sort-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #083a41;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.table-sort-link:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.table-sort-link.active {
+  color: var(--secondaryColor);
+}
+
+.table-sort-indicator {
+  font-size: 0.9rem;
+  line-height: 1;
+  opacity: 0.9;
+}
+
 @keyframes modalIn {
   from {
     opacity: 0;

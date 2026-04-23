@@ -93,4 +93,35 @@ class HorariosRepository
 
         return $st->rowCount() === 1;
     }
+
+    public static function existeSolape(int $dia_semana, string $hora_inicio, string $hora_fin, ?int $ignorarId = null): bool
+    {
+        $pdo = db();
+
+        $sql = "SELECT COUNT(*) AS total
+                FROM horario_laboral
+                WHERE dia_semana = :dia_semana
+                  AND (
+                        :hora_inicio < hora_fin
+                        AND :hora_fin > hora_inicio
+                      )";
+
+        $params = [
+            ':dia_semana' => $dia_semana,
+            ':hora_inicio' => $hora_inicio,
+            ':hora_fin' => $hora_fin
+        ];
+
+        if ($ignorarId !== null) {
+            $sql .= " AND id_horario <> :ignorar_id";
+            $params[':ignorar_id'] = $ignorarId;
+        }
+
+        $st = $pdo->prepare($sql);
+        $st->execute($params);
+
+        $fila = $st->fetch();
+
+        return (int) ($fila['total'] ?? 0) > 0;
+    }
 }

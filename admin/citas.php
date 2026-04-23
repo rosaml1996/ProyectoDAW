@@ -39,6 +39,87 @@ function nombreDiaSemana($dia)
     return $dias[$dia] ?? "Día";
 }
 
+function valorOrdenable($fila, $campo, $tipo = 'texto')
+{
+    $valor = $fila[$campo] ?? null;
+
+    if ($tipo === 'numero') {
+        return (float) $valor;
+    }
+
+    if ($tipo === 'fecha') {
+        return strtotime((string) $valor) ?: 0;
+    }
+
+    if ($tipo === 'hora') {
+        return strtotime('1970-01-01 ' . (string) $valor) ?: 0;
+    }
+
+    return mb_strtolower(trim((string) $valor));
+}
+
+function ordenarArrayPorCampo(array $datos, string $campo, string $direccion = 'asc', string $tipo = 'texto'): array
+{
+    usort($datos, function ($a, $b) use ($campo, $direccion, $tipo) {
+        $valorA = valorOrdenable($a, $campo, $tipo);
+        $valorB = valorOrdenable($b, $campo, $tipo);
+
+        if ($valorA == $valorB) {
+            return 0;
+        }
+
+        if ($direccion === 'desc') {
+            return ($valorA < $valorB) ? 1 : -1;
+        }
+
+        return ($valorA < $valorB) ? -1 : 1;
+    });
+
+    return $datos;
+}
+
+function getOrdenTabla(string $tabla, string $campoPorDefecto, string $dirPorDefecto = 'asc'): array
+{
+    $campo = $_GET[$tabla . '_sort'] ?? $campoPorDefecto;
+    $dir = strtolower($_GET[$tabla . '_dir'] ?? $dirPorDefecto);
+    $dir = $dir === 'desc' ? 'desc' : 'asc';
+
+    return [$campo, $dir];
+}
+
+function urlOrdenTabla(string $tabla, string $campo, string $campoActual, string $dirActual): string
+{
+    $params = $_GET;
+
+    $nuevaDir = 'asc';
+    if ($campoActual === $campo && $dirActual === 'asc') {
+        $nuevaDir = 'desc';
+    }
+
+    $params[$tabla . '_sort'] = $campo;
+    $params[$tabla . '_dir'] = $nuevaDir;
+
+    return '?' . http_build_query($params);
+}
+
+function indicadorOrden(string $campo, string $campoActual, string $dirActual): string
+{
+    if ($campo !== $campoActual) {
+        return '↕';
+    }
+
+    return $dirActual === 'asc' ? '↑' : '↓';
+}
+
+function thOrdenable(string $tabla, string $campo, string $texto, string $campoActual, string $dirActual): string
+{
+    $url = htmlspecialchars(urlOrdenTabla($tabla, $campo, $campoActual, $dirActual));
+    $indicador = indicadorOrden($campo, $campoActual, $dirActual);
+    $clase = $campo === $campoActual ? 'table-sort-link active' : 'table-sort-link';
+
+    return '<a class="' . $clase . '" href="' . $url . '">' . htmlspecialchars($texto) . ' <span class="table-sort-indicator">' . $indicador . '</span></a>';
+}
+
 $jwt = $_COOKIE['jwt'] ?? null;
 
 if (!$jwt) {
@@ -197,11 +278,63 @@ $proximasCitas = [];
 $historialCitas = [];
 
 foreach ($citas as $cita) {
-    if (esCitaPasada($cita["fecha"], $cita["hora"])) {
-        $historialCitas[] = $cita;
-    } else {
+    $estado = $cita["estado"] ?? "";
+
+    if ($estado === "reservada" && !esCitaPasada($cita["fecha"], $cita["hora"])) {
         $proximasCitas[] = $cita;
+    } else {
+        $historialCitas[] = $cita;
     }
+}
+
+// =====================================================
+// ORDENACIÓN
+// =====================================================
+
+[$horariosSort, $horariosDir] = getOrdenTabla('horarios', 'dia_semana', 'asc');
+$camposHorarios = [
+    'dia_semana' => 'numero',
+    'hora_inicio' => 'hora',
+    'hora_fin' => 'hora',
+    'activo' => 'numero'
+];
+if (isset($camposHorarios[$horariosSort])) {
+    $horarios = ordenarArrayPorCampo($horarios, $horariosSort, $horariosDir, $camposHorarios[$horariosSort]);
+}
+
+[$bloqueosSort, $bloqueosDir] = getOrdenTabla('bloqueos', 'fecha', 'desc');
+$camposBloqueos = [
+    'fecha' => 'fecha',
+    'hora_inicio' => 'hora',
+    'hora_fin' => 'hora',
+    'motivo' => 'texto'
+];
+if (isset($camposBloqueos[$bloqueosSort])) {
+    $bloqueos = ordenarArrayPorCampo($bloqueos, $bloqueosSort, $bloqueosDir, $camposBloqueos[$bloqueosSort]);
+}
+
+[$proximasSort, $proximasDir] = getOrdenTabla('proximas', 'fecha', 'asc');
+$camposProximas = [
+    'fecha' => 'fecha',
+    'hora' => 'hora',
+    'servicio' => 'texto',
+    'estado' => 'texto',
+    'paciente' => 'texto'
+];
+if (isset($camposProximas[$proximasSort])) {
+    $proximasCitas = ordenarArrayPorCampo($proximasCitas, $proximasSort, $proximasDir, $camposProximas[$proximasSort]);
+}
+
+[$historialSort, $historialDir] = getOrdenTabla('historial', 'fecha', 'desc');
+$camposHistorial = [
+    'fecha' => 'fecha',
+    'hora' => 'hora',
+    'servicio' => 'texto',
+    'estado' => 'texto',
+    'paciente' => 'texto'
+];
+if (isset($camposHistorial[$historialSort])) {
+    $historialCitas = ordenarArrayPorCampo($historialCitas, $historialSort, $historialDir, $camposHistorial[$historialSort]);
 }
 
 Html::inicioHtml(t("admin_appointments_page_title"), [
@@ -335,10 +468,10 @@ require_once __DIR__ . '/../partials/header.php';
                 <table class="panel-table">
                     <thead>
                         <tr>
-                            <th>Día</th>
-                            <th>Inicio</th>
-                            <th>Fin</th>
-                            <th>Activo</th>
+                            <th><?= thOrdenable('horarios', 'dia_semana', 'Día', $horariosSort, $horariosDir) ?></th>
+                            <th><?= thOrdenable('horarios', 'hora_inicio', 'Inicio', $horariosSort, $horariosDir) ?></th>
+                            <th><?= thOrdenable('horarios', 'hora_fin', 'Fin', $horariosSort, $horariosDir) ?></th>
+                            <th><?= thOrdenable('horarios', 'activo', 'Activo', $horariosSort, $horariosDir) ?></th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -391,10 +524,10 @@ require_once __DIR__ . '/../partials/header.php';
                 <table class="panel-table">
                     <thead>
                         <tr>
-                            <th>Fecha</th>
-                            <th>Inicio</th>
-                            <th>Fin</th>
-                            <th>Motivo</th>
+                            <th><?= thOrdenable('bloqueos', 'fecha', 'Fecha', $bloqueosSort, $bloqueosDir) ?></th>
+                            <th><?= thOrdenable('bloqueos', 'hora_inicio', 'Inicio', $bloqueosSort, $bloqueosDir) ?></th>
+                            <th><?= thOrdenable('bloqueos', 'hora_fin', 'Fin', $bloqueosSort, $bloqueosDir) ?></th>
+                            <th><?= thOrdenable('bloqueos', 'motivo', 'Motivo', $bloqueosSort, $bloqueosDir) ?></th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -448,11 +581,11 @@ require_once __DIR__ . '/../partials/header.php';
                 <table class="panel-table">
                     <thead>
                         <tr>
-                            <th>Fecha</th>
-                            <th>Hora</th>
-                            <th>Servicio</th>
-                            <th>Estado</th>
-                            <th>Paciente</th>
+                            <th><?= thOrdenable('proximas', 'fecha', 'Fecha', $proximasSort, $proximasDir) ?></th>
+                            <th><?= thOrdenable('proximas', 'hora', 'Hora', $proximasSort, $proximasDir) ?></th>
+                            <th><?= thOrdenable('proximas', 'servicio', 'Servicio', $proximasSort, $proximasDir) ?></th>
+                            <th><?= thOrdenable('proximas', 'estado', 'Estado', $proximasSort, $proximasDir) ?></th>
+                            <th><?= thOrdenable('proximas', 'paciente', 'Paciente', $proximasSort, $proximasDir) ?></th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -487,7 +620,7 @@ require_once __DIR__ . '/../partials/header.php';
     <section class="admin-box" style="margin-top: 22px;">
         <div class="admin-box__top">
             <h2>Historial de citas</h2>
-            <p>Citas pasadas o ya finalizadas.</p>
+            <p>Citas pasadas, canceladas o ya finalizadas.</p>
         </div>
 
         <?php if (empty($historialCitas)): ?>
@@ -497,11 +630,11 @@ require_once __DIR__ . '/../partials/header.php';
                 <table class="panel-table">
                     <thead>
                         <tr>
-                            <th>Fecha</th>
-                            <th>Hora</th>
-                            <th>Servicio</th>
-                            <th>Estado</th>
-                            <th>Paciente</th>
+                            <th><?= thOrdenable('historial', 'fecha', 'Fecha', $historialSort, $historialDir) ?></th>
+                            <th><?= thOrdenable('historial', 'hora', 'Hora', $historialSort, $historialDir) ?></th>
+                            <th><?= thOrdenable('historial', 'servicio', 'Servicio', $historialSort, $historialDir) ?></th>
+                            <th><?= thOrdenable('historial', 'estado', 'Estado', $historialSort, $historialDir) ?></th>
+                            <th><?= thOrdenable('historial', 'paciente', 'Paciente', $historialSort, $historialDir) ?></th>
                         </tr>
                     </thead>
                     <tbody>
