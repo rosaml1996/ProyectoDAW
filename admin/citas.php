@@ -27,16 +27,16 @@ function esCitaPasada($fecha, $hora)
 function nombreDiaSemana($dia)
 {
     $dias = [
-        1 => "Lunes",
-        2 => "Martes",
-        3 => "Miércoles",
-        4 => "Jueves",
-        5 => "Viernes",
-        6 => "Sábado",
-        7 => "Domingo"
+        1 => t("day_monday"),
+        2 => t("day_tuesday"),
+        3 => t("day_wednesday"),
+        4 => t("day_thursday"),
+        5 => t("day_friday"),
+        6 => t("day_saturday"),
+        7 => t("day_sunday")
     ];
 
-    return $dias[$dia] ?? "Día";
+    return $dias[$dia] ?? t("day_default");
 }
 
 function valorOrdenable($fila, $campo, $tipo = 'texto')
@@ -149,10 +149,10 @@ if (isset($_POST["cancelar_cita"])) {
     ]);
 
     if ($resCancelar["ok"]) {
-        $mensaje = $resCancelar["datos"]["message"] ?? "Cita cancelada correctamente.";
+        $mensaje = $resCancelar["datos"]["message"] ?? t("appointment_cancelled_successfully");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resCancelar["datos"]["error"] ?? "No se pudo cancelar la cita.";
+        $mensaje = $resCancelar["datos"]["error"] ?? t("cancel_appointment_error");
         $tipoMensaje = "error";
     }
 }
@@ -165,10 +165,10 @@ if (isset($_POST["crear_horario"])) {
     ]);
 
     if ($resCrearHorario["ok"]) {
-        $mensaje = $resCrearHorario["datos"]["message"] ?? "Horario guardado correctamente.";
+        $mensaje = $resCrearHorario["datos"]["message"] ?? t("schedule_saved_success");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resCrearHorario["datos"]["error"] ?? "No se pudo guardar el horario.";
+        $mensaje = $resCrearHorario["datos"]["error"] ?? t("schedule_save_error");
         $tipoMensaje = "error";
     }
 }
@@ -184,10 +184,10 @@ if (isset($_POST["editar_horario"])) {
     ]);
 
     if ($resEditarHorario["ok"]) {
-        $mensaje = $resEditarHorario["datos"]["message"] ?? "Horario actualizado correctamente.";
+        $mensaje = $resEditarHorario["datos"]["message"] ?? t("schedule_updated_success");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resEditarHorario["datos"]["error"] ?? "No se pudo actualizar el horario.";
+        $mensaje = $resEditarHorario["datos"]["error"] ?? t("schedule_update_error");
         $tipoMensaje = "error";
     }
 }
@@ -198,10 +198,10 @@ if (isset($_POST["eliminar_horario"])) {
     $resEliminarHorario = llamarApi("DELETE", "admin/horarios/" . $id);
 
     if ($resEliminarHorario["ok"]) {
-        $mensaje = $resEliminarHorario["datos"]["message"] ?? "Horario eliminado correctamente.";
+        $mensaje = $resEliminarHorario["datos"]["message"] ?? t("schedule_deleted_success");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resEliminarHorario["datos"]["error"] ?? "No se pudo eliminar el horario.";
+        $mensaje = $resEliminarHorario["datos"]["error"] ?? t("schedule_delete_error");
         $tipoMensaje = "error";
     }
 }
@@ -218,10 +218,10 @@ if (isset($_POST["crear_bloqueo"])) {
     ]);
 
     if ($resCrearBloqueo["ok"]) {
-        $mensaje = $resCrearBloqueo["datos"]["message"] ?? "Bloqueo guardado correctamente.";
+        $mensaje = $resCrearBloqueo["datos"]["message"] ?? t("block_saved_success");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resCrearBloqueo["datos"]["error"] ?? "No se pudo guardar el bloqueo.";
+        $mensaje = $resCrearBloqueo["datos"]["error"] ?? t("block_save_error");
         $tipoMensaje = "error";
     }
 }
@@ -239,10 +239,10 @@ if (isset($_POST["editar_bloqueo"])) {
     ]);
 
     if ($resEditarBloqueo["ok"]) {
-        $mensaje = $resEditarBloqueo["datos"]["message"] ?? "Bloqueo actualizado correctamente.";
+        $mensaje = $resEditarBloqueo["datos"]["message"] ?? t("block_updated_success");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resEditarBloqueo["datos"]["error"] ?? "No se pudo actualizar el bloqueo.";
+        $mensaje = $resEditarBloqueo["datos"]["error"] ?? t("block_update_error");
         $tipoMensaje = "error";
     }
 }
@@ -253,10 +253,10 @@ if (isset($_POST["eliminar_bloqueo"])) {
     $resEliminarBloqueo = llamarApi("DELETE", "admin/bloqueos/" . $id);
 
     if ($resEliminarBloqueo["ok"]) {
-        $mensaje = $resEliminarBloqueo["datos"]["message"] ?? "Bloqueo eliminado correctamente.";
+        $mensaje = $resEliminarBloqueo["datos"]["message"] ?? t("block_deleted_success");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resEliminarBloqueo["datos"]["error"] ?? "No se pudo eliminar el bloqueo.";
+        $mensaje = $resEliminarBloqueo["datos"]["error"] ?? t("block_delete_error");
         $tipoMensaje = "error";
     }
 }
@@ -352,7 +352,7 @@ require_once __DIR__ . '/../partials/header.php';
     <section class="panel-hero">
         <div class="panel-hero__text">
             <h1><?= t("admin_appointments_page_title") ?></h1>
-            <p>Gestiona citas reales, horario habitual y bloqueos de agenda.</p>
+            <p><?= t("admin_appointments_subtitle") ?></p>
         </div>
     </section>
 
@@ -371,8 +371,8 @@ require_once __DIR__ . '/../partials/header.php';
     <section class="admin-layout">
         <div class="admin-box">
             <div class="admin-box__top">
-                <h2>Horario habitual</h2>
-                <p>Añade los días y tramos en los que trabajas normalmente.</p>
+                <h2><?= t("regular_schedule_title") ?></h2>
+                <p><?= t("regular_schedule_description") ?></p>
             </div>
 
             <form class="auth-form" method="POST">
@@ -382,14 +382,14 @@ require_once __DIR__ . '/../partials/header.php';
                         required
                         style="width:100%; border:none; background:transparent; outline:none; font-family:inherit;"
                     >
-                        <option value="">Selecciona un día</option>
-                        <option value="1">Lunes</option>
-                        <option value="2">Martes</option>
-                        <option value="3">Miércoles</option>
-                        <option value="4">Jueves</option>
-                        <option value="5">Viernes</option>
-                        <option value="6">Sábado</option>
-                        <option value="7">Domingo</option>
+                        <option value=""><?= t("select_day") ?></option>
+                        <option value="1"><?= t("day_monday") ?></option>
+                        <option value="2"><?= t("day_tuesday") ?></option>
+                        <option value="3"><?= t("day_wednesday") ?></option>
+                        <option value="4"><?= t("day_thursday") ?></option>
+                        <option value="5"><?= t("day_friday") ?></option>
+                        <option value="6"><?= t("day_saturday") ?></option>
+                        <option value="7"><?= t("day_sunday") ?></option>
                     </select>
                 </div>
 
@@ -402,15 +402,15 @@ require_once __DIR__ . '/../partials/header.php';
                 </div>
 
                 <button class="auth-btn" type="submit" name="crear_horario">
-                    Guardar horario
+                    <?= t("save_schedule") ?>
                 </button>
             </form>
         </div>
 
         <div class="admin-box">
             <div class="admin-box__top">
-                <h2>Bloqueos de agenda</h2>
-                <p>Puedes bloquear un día completo o solo una franja horaria.</p>
+                <h2><?= t("agenda_blocks_title") ?></h2>
+                <p><?= t("agenda_blocks_description") ?></p>
             </div>
 
             <form class="auth-form" method="POST" id="formCrearBloqueo">
@@ -439,40 +439,40 @@ require_once __DIR__ . '/../partials/header.php';
                         type="text"
                         name="motivo_bloqueo"
                         id="motivo_bloqueo"
-                        placeholder="Motivo"
+                        placeholder="<?= t("reason_placeholder") ?>"
                         required
                     >
                 </div>
                 <span id="errorCrearBloqueoMotivo" class="input-error"></span>
 
                 <button class="auth-btn" type="submit" name="crear_bloqueo">
-                    Guardar bloqueo
+                    <?= t("save_block") ?>
                 </button>
             </form>
 
             <p style="margin-top:10px; font-size:14px;">
-                Si dejas vacías las horas, se bloqueará el día completo.
+                <?= t("block_full_day_hint") ?>
             </p>
         </div>
     </section>
 
     <section class="admin-box" style="margin-top: 22px;">
         <div class="admin-box__top">
-            <h2>Horarios configurados</h2>
+            <h2><?= t("configured_schedules_title") ?></h2>
         </div>
 
         <?php if (empty($horarios)): ?>
-            <p class="sin-resultados">No hay horarios configurados.</p>
+            <p class="sin-resultados"><?= t("no_schedules_configured") ?></p>
         <?php else: ?>
             <div class="panel-table-wrap">
                 <table class="panel-table">
                     <thead>
                         <tr>
-                            <th><?= thOrdenable('horarios', 'dia_semana', 'Día', $horariosSort, $horariosDir) ?></th>
-                            <th><?= thOrdenable('horarios', 'hora_inicio', 'Inicio', $horariosSort, $horariosDir) ?></th>
-                            <th><?= thOrdenable('horarios', 'hora_fin', 'Fin', $horariosSort, $horariosDir) ?></th>
-                            <th><?= thOrdenable('horarios', 'activo', 'Activo', $horariosSort, $horariosDir) ?></th>
-                            <th>Acciones</th>
+                            <th><?= thOrdenable('horarios', 'dia_semana', t("day"), $horariosSort, $horariosDir) ?></th>
+                            <th><?= thOrdenable('horarios', 'hora_inicio', t("start"), $horariosSort, $horariosDir) ?></th>
+                            <th><?= thOrdenable('horarios', 'hora_fin', t("end"), $horariosSort, $horariosDir) ?></th>
+                            <th><?= thOrdenable('horarios', 'activo', t("active"), $horariosSort, $horariosDir) ?></th>
+                            <th><?= t("actions") ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -481,7 +481,7 @@ require_once __DIR__ . '/../partials/header.php';
                                 <td><?= htmlspecialchars(nombreDiaSemana((int) $horario["dia_semana"])) ?></td>
                                 <td><?= htmlspecialchars(formatearHora($horario["hora_inicio"])) ?></td>
                                 <td><?= htmlspecialchars(formatearHora($horario["hora_fin"])) ?></td>
-                                <td><?= ((int) $horario["activo"] === 1) ? "Sí" : "No" ?></td>
+                                <td><?= ((int) $horario["activo"] === 1) ? t("yes") : t("no") ?></td>
                                 <td class="acciones-tabla">
                                     <button
                                         type="button"
@@ -494,13 +494,13 @@ require_once __DIR__ . '/../partials/header.php';
                                             '<?= $horario['activo'] ?>'
                                         )"
                                     >
-                                        Editar
+                                        <?= t("edit") ?>
                                     </button>
 
                                     <form method="POST" style="display:inline;">
                                         <input type="hidden" name="id_horario" value="<?= $horario["id_horario"] ?>">
                                         <button type="submit" name="eliminar_horario" class="btn-tabla btn-anular">
-                                            Eliminar
+                                            <?= t("delete") ?>
                                         </button>
                                     </form>
                                 </td>
@@ -514,28 +514,28 @@ require_once __DIR__ . '/../partials/header.php';
 
     <section class="admin-box" style="margin-top: 22px;">
         <div class="admin-box__top">
-            <h2>Bloqueos configurados</h2>
+            <h2><?= t("configured_blocks_title") ?></h2>
         </div>
 
         <?php if (empty($bloqueos)): ?>
-            <p class="sin-resultados">No hay bloqueos configurados.</p>
+            <p class="sin-resultados"><?= t("no_blocks_configured") ?></p>
         <?php else: ?>
             <div class="panel-table-wrap">
                 <table class="panel-table">
                     <thead>
                         <tr>
-                            <th><?= thOrdenable('bloqueos', 'fecha', 'Fecha', $bloqueosSort, $bloqueosDir) ?></th>
-                            <th><?= thOrdenable('bloqueos', 'hora_inicio', 'Inicio', $bloqueosSort, $bloqueosDir) ?></th>
-                            <th><?= thOrdenable('bloqueos', 'hora_fin', 'Fin', $bloqueosSort, $bloqueosDir) ?></th>
-                            <th><?= thOrdenable('bloqueos', 'motivo', 'Motivo', $bloqueosSort, $bloqueosDir) ?></th>
-                            <th>Acciones</th>
+                            <th><?= thOrdenable('bloqueos', 'fecha', t("date"), $bloqueosSort, $bloqueosDir) ?></th>
+                            <th><?= thOrdenable('bloqueos', 'hora_inicio', t("start"), $bloqueosSort, $bloqueosDir) ?></th>
+                            <th><?= thOrdenable('bloqueos', 'hora_fin', t("end"), $bloqueosSort, $bloqueosDir) ?></th>
+                            <th><?= thOrdenable('bloqueos', 'motivo', t("reason"), $bloqueosSort, $bloqueosDir) ?></th>
+                            <th><?= t("actions") ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($bloqueos as $bloqueo): ?>
                             <tr>
                                 <td><?= htmlspecialchars(formatearFecha($bloqueo["fecha"])) ?></td>
-                                <td><?= htmlspecialchars($bloqueo["hora_inicio"] ? formatearHora($bloqueo["hora_inicio"]) : "Día completo") ?></td>
+                                <td><?= htmlspecialchars($bloqueo["hora_inicio"] ? formatearHora($bloqueo["hora_inicio"]) : t("full_day")) ?></td>
                                 <td><?= htmlspecialchars($bloqueo["hora_fin"] ? formatearHora($bloqueo["hora_fin"]) : "-") ?></td>
                                 <td><?= htmlspecialchars($bloqueo["motivo"] ?? "") ?></td>
                                 <td class="acciones-tabla">
@@ -550,13 +550,13 @@ require_once __DIR__ . '/../partials/header.php';
                                             '<?= htmlspecialchars($bloqueo['motivo'] ?? '', ENT_QUOTES) ?>'
                                         )"
                                     >
-                                        Editar
+                                        <?= t("edit") ?>
                                     </button>
 
                                     <form method="POST" style="margin:0;">
                                         <input type="hidden" name="id_bloqueo" value="<?= $bloqueo["id_bloqueo"] ?>">
                                         <button type="submit" name="eliminar_bloqueo" class="btn-tabla btn-anular">
-                                            Eliminar
+                                            <?= t("delete") ?>
                                         </button>
                                     </form>
                                 </td>
@@ -570,39 +570,48 @@ require_once __DIR__ . '/../partials/header.php';
 
     <section class="admin-box" style="margin-top: 22px;">
         <div class="admin-box__top">
-            <h2>Próximas citas</h2>
-            <p>Citas futuras reservadas por los clientes.</p>
+            <h2><?= t("upcoming_appointments_title") ?></h2>
+            <p><?= t("upcoming_appointments_description") ?></p>
         </div>
 
         <?php if (empty($proximasCitas)): ?>
-            <p class="sin-resultados">No hay próximas citas.</p>
+            <p class="sin-resultados"><?= t("no_upcoming_appointments") ?></p>
         <?php else: ?>
             <div class="panel-table-wrap">
                 <table class="panel-table">
                     <thead>
                         <tr>
-                            <th><?= thOrdenable('proximas', 'fecha', 'Fecha', $proximasSort, $proximasDir) ?></th>
-                            <th><?= thOrdenable('proximas', 'hora', 'Hora', $proximasSort, $proximasDir) ?></th>
-                            <th><?= thOrdenable('proximas', 'servicio', 'Servicio', $proximasSort, $proximasDir) ?></th>
-                            <th><?= thOrdenable('proximas', 'estado', 'Estado', $proximasSort, $proximasDir) ?></th>
-                            <th><?= thOrdenable('proximas', 'paciente', 'Paciente', $proximasSort, $proximasDir) ?></th>
-                            <th>Acciones</th>
+                            <th><?= thOrdenable('proximas', 'fecha', t("date"), $proximasSort, $proximasDir) ?></th>
+                            <th><?= thOrdenable('proximas', 'hora', t("time"), $proximasSort, $proximasDir) ?></th>
+                            <th><?= thOrdenable('proximas', 'servicio', t("service"), $proximasSort, $proximasDir) ?></th>
+                            <th><?= thOrdenable('proximas', 'estado', t("status"), $proximasSort, $proximasDir) ?></th>
+                            <th><?= thOrdenable('proximas', 'paciente', t("patient"), $proximasSort, $proximasDir) ?></th>
+                            <th><?= t("actions") ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($proximasCitas as $cita): ?>
+                            <?php
+                            $servicioTraducido = traducirServicio([
+                                "nombre" => $cita["servicio"] ?? "",
+                                "descripcion" => ""
+                            ]);
+
+                            $estado = $cita["estado"] ?? "";
+                            $estadoTraducido = $estado !== "" ? t("appointment_status_" . $estado) : "";
+                            ?>
                             <tr>
                                 <td><?= htmlspecialchars(formatearFecha($cita["fecha"])) ?></td>
                                 <td><?= htmlspecialchars(formatearHora($cita["hora"])) ?></td>
-                                <td><?= htmlspecialchars($cita["servicio"]) ?></td>
-                                <td><?= htmlspecialchars($cita["estado"]) ?></td>
+                                <td><?= htmlspecialchars($servicioTraducido["nombre"]) ?></td>
+                                <td><?= htmlspecialchars($estadoTraducido) ?></td>
                                 <td><?= htmlspecialchars($cita["paciente"] ?? "-") ?></td>
                                 <td>
                                     <?php if (($cita["estado"] ?? "") === "reservada"): ?>
                                         <form method="POST" style="margin:0;">
                                             <input type="hidden" name="id_cita" value="<?= $cita["id_cita"] ?>">
                                             <button type="submit" name="cancelar_cita" class="btn-tabla btn-anular">
-                                                Cancelar
+                                                <?= t("cancel") ?>
                                             </button>
                                         </form>
                                     <?php else: ?>
@@ -619,31 +628,40 @@ require_once __DIR__ . '/../partials/header.php';
 
     <section class="admin-box" style="margin-top: 22px;">
         <div class="admin-box__top">
-            <h2>Historial de citas</h2>
-            <p>Citas pasadas, canceladas o ya finalizadas.</p>
+            <h2><?= t("appointments_history_title") ?></h2>
+            <p><?= t("appointments_history_description") ?></p>
         </div>
 
         <?php if (empty($historialCitas)): ?>
-            <p class="sin-resultados">No hay historial de citas.</p>
+            <p class="sin-resultados"><?= t("no_appointments_history") ?></p>
         <?php else: ?>
             <div class="panel-table-wrap">
                 <table class="panel-table">
                     <thead>
                         <tr>
-                            <th><?= thOrdenable('historial', 'fecha', 'Fecha', $historialSort, $historialDir) ?></th>
-                            <th><?= thOrdenable('historial', 'hora', 'Hora', $historialSort, $historialDir) ?></th>
-                            <th><?= thOrdenable('historial', 'servicio', 'Servicio', $historialSort, $historialDir) ?></th>
-                            <th><?= thOrdenable('historial', 'estado', 'Estado', $historialSort, $historialDir) ?></th>
-                            <th><?= thOrdenable('historial', 'paciente', 'Paciente', $historialSort, $historialDir) ?></th>
+                            <th><?= thOrdenable('historial', 'fecha', t("date"), $historialSort, $historialDir) ?></th>
+                            <th><?= thOrdenable('historial', 'hora', t("time"), $historialSort, $historialDir) ?></th>
+                            <th><?= thOrdenable('historial', 'servicio', t("service"), $historialSort, $historialDir) ?></th>
+                            <th><?= thOrdenable('historial', 'estado', t("status"), $historialSort, $historialDir) ?></th>
+                            <th><?= thOrdenable('historial', 'paciente', t("patient"), $historialSort, $historialDir) ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($historialCitas as $cita): ?>
+                            <?php
+                            $servicioTraducido = traducirServicio([
+                                "nombre" => $cita["servicio"] ?? "",
+                                "descripcion" => ""
+                            ]);
+
+                            $estado = $cita["estado"] ?? "";
+                            $estadoTraducido = $estado !== "" ? t("appointment_status_" . $estado) : "";
+                            ?>
                             <tr>
                                 <td><?= htmlspecialchars(formatearFecha($cita["fecha"])) ?></td>
                                 <td><?= htmlspecialchars(formatearHora($cita["hora"])) ?></td>
-                                <td><?= htmlspecialchars($cita["servicio"]) ?></td>
-                                <td><?= htmlspecialchars($cita["estado"]) ?></td>
+                                <td><?= htmlspecialchars($servicioTraducido["nombre"]) ?></td>
+                                <td><?= htmlspecialchars($estadoTraducido) ?></td>
                                 <td><?= htmlspecialchars($cita["paciente"] ?? "-") ?></td>
                             </tr>
                         <?php endforeach; ?>
@@ -657,7 +675,7 @@ require_once __DIR__ . '/../partials/header.php';
 <div id="modalEditarHorario" class="modal-confirmacion">
     <div class="modal-box">
         <div class="modal-top">
-            <h3>Editar horario</h3>
+            <h3><?= t("edit_schedule") ?></h3>
         </div>
 
         <div class="modal-body">
@@ -671,13 +689,13 @@ require_once __DIR__ . '/../partials/header.php';
                         required
                         style="width:100%; border:none; background:transparent; outline:none; font-family:inherit;"
                     >
-                        <option value="1">Lunes</option>
-                        <option value="2">Martes</option>
-                        <option value="3">Miércoles</option>
-                        <option value="4">Jueves</option>
-                        <option value="5">Viernes</option>
-                        <option value="6">Sábado</option>
-                        <option value="7">Domingo</option>
+                        <option value="1"><?= t("day_monday") ?></option>
+                        <option value="2"><?= t("day_tuesday") ?></option>
+                        <option value="3"><?= t("day_wednesday") ?></option>
+                        <option value="4"><?= t("day_thursday") ?></option>
+                        <option value="5"><?= t("day_friday") ?></option>
+                        <option value="6"><?= t("day_saturday") ?></option>
+                        <option value="7"><?= t("day_sunday") ?></option>
                     </select>
                 </div>
 
@@ -696,8 +714,8 @@ require_once __DIR__ . '/../partials/header.php';
                         required
                         style="width:100%; border:none; background:transparent; outline:none; font-family:inherit;"
                     >
-                        <option value="1">Activo</option>
-                        <option value="0">Inactivo</option>
+                        <option value="1"><?= t("active") ?></option>
+                        <option value="0"><?= t("inactive") ?></option>
                     </select>
                 </div>
             </form>
@@ -705,10 +723,10 @@ require_once __DIR__ . '/../partials/header.php';
 
         <div class="modal-actions">
             <button type="button" class="modal-btn modal-btn-cancelar" onclick="cerrarModalEditarHorario()">
-                Cancelar
+                <?= t("cancel") ?>
             </button>
             <button type="submit" form="formEditarHorario" name="editar_horario" class="modal-btn modal-btn-aceptar">
-                Guardar cambios
+                <?= t("save_changes") ?>
             </button>
         </div>
     </div>
@@ -717,7 +735,7 @@ require_once __DIR__ . '/../partials/header.php';
 <div id="modalEditarBloqueo" class="modal-confirmacion">
     <div class="modal-box">
         <div class="modal-top">
-            <h3>Editar bloqueo</h3>
+            <h3><?= t("edit_block") ?></h3>
         </div>
 
         <div class="modal-body">
@@ -749,7 +767,7 @@ require_once __DIR__ . '/../partials/header.php';
                         type="text"
                         name="motivo_bloqueo_editar"
                         id="editar_motivo_bloqueo"
-                        placeholder="Motivo"
+                        placeholder="<?= t("reason_placeholder") ?>"
                         required
                     >
                 </div>
@@ -757,20 +775,30 @@ require_once __DIR__ . '/../partials/header.php';
             </form>
 
             <p style="margin-top:10px; font-size:14px;">
-                Si dejas vacías las horas, se bloqueará el día completo.
+                <?= t("block_full_day_hint") ?>
             </p>
         </div>
 
         <div class="modal-actions">
             <button type="button" class="modal-btn modal-btn-cancelar" onclick="cerrarModalEditarBloqueo()">
-                Cancelar
+                <?= t("cancel") ?>
             </button>
             <button type="submit" form="formEditarBloqueo" name="editar_bloqueo" class="modal-btn modal-btn-aceptar">
-                Guardar cambios
+                <?= t("save_changes") ?>
             </button>
         </div>
     </div>
 </div>
+
+<script>
+    window.i18n = {
+        block_date_required: <?= json_encode(t("block_date_required")) ?>,
+        block_past_date_error: <?= json_encode(t("block_past_date_error")) ?>,
+        block_reason_required: <?= json_encode(t("block_reason_required")) ?>,
+        block_hours_required: <?= json_encode(t("block_hours_required")) ?>,
+        start_time_before_end_time: <?= json_encode(t("start_time_before_end_time")) ?>
+    };
+</script>
 
 <script src="/ProyectoDAW/admin/js/citas.js"></script>
 

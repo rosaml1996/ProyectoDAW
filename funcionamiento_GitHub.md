@@ -65,11 +65,6 @@ Cuando la feature esté terminada:
 8. Confirmar el merge
 9. Borrar la rama si ya no se va a seguir usando
 
-```bash
-git branch -d feature/nombre-tarea
-git push origin --delete feature/nombre-tarea
-````
-
 ### 6. Después del merge, actualizar `develop` en local
 
 ```bash

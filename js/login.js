@@ -5,6 +5,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  const textos = window.loginTextos || {};
+
+  const t = function (clave, defecto) {
+    return textos[clave] || defecto;
+  };
+
   const emailInput = form.querySelector('input[name="email"]');
   const claveInput = form.querySelector('input[name="clave"]');
 
@@ -52,14 +58,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const value = emailInput.value.trim();
 
     if (value === "") {
-      setError(emailInput, "Este campo es obligatorio.");
+      setError(emailInput, t("requiredField", "Este campo es obligatorio."));
       return false;
     }
 
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!regex.test(value)) {
-      setError(emailInput, "Introduce un correo electrónico válido.");
+      setError(emailInput, t("invalidEmail", "Introduce un correo electrónico válido."));
       return false;
     }
 
@@ -71,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const value = claveInput.value.trim();
 
     if (value === "") {
-      setError(claveInput, "Este campo es obligatorio.");
+      setError(claveInput, t("requiredField", "Este campo es obligatorio."));
       return false;
     }
 

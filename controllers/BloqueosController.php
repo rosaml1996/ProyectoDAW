@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../repositories/BloqueosRepository.php';
 require_once __DIR__ . '/../helpers/Response.php';
 require_once __DIR__ . '/../helpers/Request.php';
+require_once __DIR__ . '/../helpers/i18n.php';
 require_once __DIR__ . '/../security/AdminAuth.php';
 
 class BloqueosController
@@ -13,7 +14,7 @@ class BloqueosController
             $bloqueos = BloqueosRepository::getAll();
             Response::json($bloqueos);
         } catch (Throwable $e) {
-            Response::json(['error' => 'No se pudieron cargar los bloqueos.'], 500);
+            Response::json(['error' => t('blocks_load_error')], 500);
         }
     }
 
@@ -30,19 +31,19 @@ class BloqueosController
             $motivo = trim((string) ($data['motivo'] ?? ''));
 
             if ($fecha === '') {
-                Response::json(['error' => 'Debes indicar una fecha.'], 400);
+                Response::json(['error' => t('date_required')], 400);
             }
 
             if (!self::validarFecha($fecha)) {
-                Response::json(['error' => 'La fecha debe tener formato YYYY-MM-DD.'], 400);
+                Response::json(['error' => t('date_format_invalid')], 400);
             }
 
             if ($fecha < date('Y-m-d')) {
-                Response::json(['error' => 'No se puede crear un bloqueo en una fecha pasada.'], 400);
+                Response::json(['error' => t('block_past_date_error')], 400);
             }
 
             if ($motivo === '') {
-                Response::json(['error' => 'Debes indicar un motivo para el bloqueo.'], 400);
+                Response::json(['error' => t('block_reason_required')], 400);
             }
 
             $hora_inicio = $hora_inicio === '' ? null : self::normalizarHora($hora_inicio);
@@ -52,35 +53,35 @@ class BloqueosController
             $esParcialValido = ($hora_inicio !== null && $hora_fin !== null);
 
             if (!$esDiaCompleto && !$esParcialValido) {
-                Response::json(['error' => 'Debes indicar ambas horas o dejar ambas vacías para bloquear el día completo.'], 400);
+                Response::json(['error' => t('block_hours_required')], 400);
             }
 
             if ($esParcialValido) {
                 if (!self::validarHora($hora_inicio) || !self::validarHora($hora_fin)) {
-                    Response::json(['error' => 'Las horas deben tener formato HH:MM:SS.'], 400);
+                    Response::json(['error' => t('time_format_invalid')], 400);
                 }
 
                 if ($hora_inicio >= $hora_fin) {
-                    Response::json(['error' => 'La hora de inicio debe ser menor que la hora de fin.'], 400);
+                    Response::json(['error' => t('start_time_before_end_time')], 400);
                 }
             }
 
             if (BloqueosRepository::existeSolape($fecha, $hora_inicio, $hora_fin)) {
-                Response::json(['error' => 'Ya existe un bloqueo igual o solapado para esa fecha.'], 409);
+                Response::json(['error' => t('block_overlap_error')], 409);
             }
 
             $id = BloqueosRepository::create($fecha, $hora_inicio, $hora_fin, $motivo);
 
             if (!$id) {
-                Response::json(['error' => 'No se pudo guardar el bloqueo.'], 500);
+                Response::json(['error' => t('block_save_error')], 500);
             }
 
             Response::json([
-                'message' => 'Bloqueo guardado correctamente.',
+                'message' => t('block_saved_success'),
                 'id_bloqueo' => $id
             ], 201);
         } catch (Throwable $e) {
-            Response::json(['error' => 'No se pudo guardar el bloqueo.'], 500);
+            Response::json(['error' => t('block_save_error')], 500);
         }
     }
 
@@ -92,7 +93,7 @@ class BloqueosController
             $bloqueo = BloqueosRepository::getById($id);
 
             if (!$bloqueo) {
-                Response::json(['error' => 'El bloqueo no existe.'], 404);
+                Response::json(['error' => t('block_not_found')], 404);
             }
 
             $data = Request::json();
@@ -103,19 +104,19 @@ class BloqueosController
             $motivo = trim((string) ($data['motivo'] ?? ''));
 
             if ($fecha === '') {
-                Response::json(['error' => 'Debes indicar una fecha.'], 400);
+                Response::json(['error' => t('date_required')], 400);
             }
 
             if (!self::validarFecha($fecha)) {
-                Response::json(['error' => 'La fecha debe tener formato YYYY-MM-DD.'], 400);
+                Response::json(['error' => t('date_format_invalid')], 400);
             }
 
             if ($fecha < date('Y-m-d')) {
-                Response::json(['error' => 'No se puede modificar un bloqueo a una fecha pasada.'], 400);
+                Response::json(['error' => t('block_update_past_date_error')], 400);
             }
 
             if ($motivo === '') {
-                Response::json(['error' => 'Debes indicar un motivo para el bloqueo.'], 400);
+                Response::json(['error' => t('block_reason_required')], 400);
             }
 
             $hora_inicio = $hora_inicio === '' ? null : self::normalizarHora($hora_inicio);
@@ -125,21 +126,21 @@ class BloqueosController
             $esParcialValido = ($hora_inicio !== null && $hora_fin !== null);
 
             if (!$esDiaCompleto && !$esParcialValido) {
-                Response::json(['error' => 'Debes indicar ambas horas o dejar ambas vacías para bloquear el día completo.'], 400);
+                Response::json(['error' => t('block_hours_required')], 400);
             }
 
             if ($esParcialValido) {
                 if (!self::validarHora($hora_inicio) || !self::validarHora($hora_fin)) {
-                    Response::json(['error' => 'Las horas deben tener formato HH:MM:SS.'], 400);
+                    Response::json(['error' => t('time_format_invalid')], 400);
                 }
 
                 if ($hora_inicio >= $hora_fin) {
-                    Response::json(['error' => 'La hora de inicio debe ser menor que la hora de fin.'], 400);
+                    Response::json(['error' => t('start_time_before_end_time')], 400);
                 }
             }
 
             if (BloqueosRepository::existeSolape($fecha, $hora_inicio, $hora_fin, $id)) {
-                Response::json(['error' => 'Ya existe otro bloqueo igual o solapado para esa fecha.'], 409);
+                Response::json(['error' => t('block_overlap_other_error')], 409);
             }
 
             $ok = BloqueosRepository::update(
@@ -151,12 +152,12 @@ class BloqueosController
             );
 
             if (!$ok) {
-                Response::json(['error' => 'No se pudo actualizar el bloqueo.'], 500);
+                Response::json(['error' => t('block_update_error')], 500);
             }
 
-            Response::json(['message' => 'Bloqueo actualizado correctamente.']);
+            Response::json(['message' => t('block_updated_success')]);
         } catch (Throwable $e) {
-            Response::json(['error' => 'No se pudo actualizar el bloqueo.'], 500);
+            Response::json(['error' => t('block_update_error')], 500);
         }
     }
 
@@ -168,18 +169,18 @@ class BloqueosController
             $bloqueo = BloqueosRepository::getById($id);
 
             if (!$bloqueo) {
-                Response::json(['error' => 'El bloqueo no existe.'], 404);
+                Response::json(['error' => t('block_not_found')], 404);
             }
 
             $ok = BloqueosRepository::delete($id);
 
             if (!$ok) {
-                Response::json(['error' => 'No se pudo eliminar el bloqueo.'], 500);
+                Response::json(['error' => t('block_delete_error')], 500);
             }
 
-            Response::json(['message' => 'Bloqueo eliminado correctamente.']);
+            Response::json(['message' => t('block_deleted_success')]);
         } catch (Throwable $e) {
-            Response::json(['error' => 'No se pudo eliminar el bloqueo.'], 500);
+            Response::json(['error' => t('block_delete_error')], 500);
         }
     }
 

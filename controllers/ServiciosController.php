@@ -3,6 +3,7 @@ require_once __DIR__ . '/../repositories/ServiciosRepository.php';
 require_once __DIR__ . '/../repositories/CitasRepository.php';
 require_once __DIR__ . '/../helpers/Response.php';
 require_once __DIR__ . '/../helpers/Request.php';
+require_once __DIR__ . '/../helpers/i18n.php';
 require_once __DIR__ . '/../security/AdminAuth.php';
 
 class ServiciosController
@@ -11,9 +12,9 @@ class ServiciosController
     {
         try {
             $servicios = ServiciosRepository::getActivos();
-            Response::json($servicios);
+            Response::json(traducirServicios($servicios));
         } catch (Throwable $e) {
-            Response::json(['error' => 'No se pudieron cargar los servicios.'], 500);
+            Response::json(['error' => t('services_load_error')], 500);
         }
     }
 
@@ -23,9 +24,10 @@ class ServiciosController
             AdminAuth::user();
 
             $servicios = ServiciosRepository::getAll();
+
             Response::json($servicios);
         } catch (Throwable $e) {
-            Response::json(['error' => 'No se pudieron cargar los servicios.'], 500);
+            Response::json(['error' => t('services_load_error')], 500);
         }
     }
 
@@ -35,12 +37,12 @@ class ServiciosController
             $servicio = ServiciosRepository::getById($id);
 
             if (!$servicio) {
-                Response::json(['error' => 'El servicio no existe.'], 404);
+                Response::json(['error' => t('service_not_found')], 404);
             }
 
-            Response::json($servicio);
+            Response::json(traducirServicio($servicio));
         } catch (Throwable $e) {
-            Response::json(['error' => 'No se pudo cargar el servicio.'], 500);
+            Response::json(['error' => t('service_load_error')], 500);
         }
     }
 
@@ -57,7 +59,7 @@ class ServiciosController
             $precio = (float) ($data['precio'] ?? 0);
 
             if ($nombre === '' || $duracion <= 0 || $precio <= 0) {
-                Response::json(['error' => 'Debes completar correctamente todos los campos obligatorios.'], 400);
+                Response::json(['error' => t('required_fields_invalid')], 400);
             }
 
             $ok = ServiciosRepository::create(
@@ -68,12 +70,12 @@ class ServiciosController
             );
 
             if (!$ok) {
-                Response::json(['error' => 'No se pudo crear el servicio.'], 500);
+                Response::json(['error' => t('service_create_error')], 500);
             }
 
-            Response::json(['message' => 'Servicio creado correctamente.'], 201);
+            Response::json(['message' => t('service_created_success')], 201);
         } catch (Throwable $e) {
-            Response::json(['error' => 'No se pudo crear el servicio.'], 500);
+            Response::json(['error' => t('service_create_error')], 500);
         }
     }
 
@@ -91,13 +93,13 @@ class ServiciosController
             $activo = filter_var($data['activo'] ?? 1, FILTER_VALIDATE_INT);
 
             if ($nombre === '' || $duracion <= 0 || $precio <= 0) {
-                Response::json(['error' => 'Debes completar correctamente todos los campos obligatorios.'], 400);
+                Response::json(['error' => t('required_fields_invalid')], 400);
             }
 
             $servicio = ServiciosRepository::getById($id);
 
             if (!$servicio) {
-                Response::json(['error' => 'El servicio que intentas editar no existe.'], 404);
+                Response::json(['error' => t('service_edit_not_found')], 404);
             }
 
             $ok = ServiciosRepository::update(
@@ -110,12 +112,12 @@ class ServiciosController
             );
 
             if (!$ok) {
-                Response::json(['error' => 'No se pudo actualizar el servicio.'], 500);
+                Response::json(['error' => t('service_update_error')], 500);
             }
 
-            Response::json(['message' => 'Servicio actualizado correctamente.']);
+            Response::json(['message' => t('service_updated_success')]);
         } catch (Throwable $e) {
-            Response::json(['error' => 'No se pudo actualizar el servicio.'], 500);
+            Response::json(['error' => t('service_update_error')], 500);
         }
     }
 
@@ -127,24 +129,24 @@ class ServiciosController
             $servicio = ServiciosRepository::getById($id);
 
             if (!$servicio) {
-                Response::json(['error' => 'El servicio que intentas desactivar no existe.'], 404);
+                Response::json(['error' => t('service_deactivate_not_found')], 404);
             }
 
             if (ServiciosRepository::tieneCitasFuturasReservadas((int) $id)) {
                 Response::json([
-                    'error' => 'No se puede desactivar el servicio porque tiene citas futuras reservadas.'
+                    'error' => t('service_has_future_appointments')
                 ], 409);
             }
 
             $ok = ServiciosRepository::desactivar((int) $id);
 
             if (!$ok) {
-                Response::json(['error' => 'No se pudo desactivar el servicio.'], 500);
+                Response::json(['error' => t('service_deactivate_error')], 500);
             }
 
-            Response::json(['message' => 'Servicio desactivado correctamente.']);
+            Response::json(['message' => t('service_deactivated_success')]);
         } catch (Throwable $e) {
-            Response::json(['error' => 'No se pudo desactivar el servicio.'], 500);
+            Response::json(['error' => t('service_deactivate_error')], 500);
         }
     }
 
@@ -156,18 +158,18 @@ class ServiciosController
             $servicio = ServiciosRepository::getById($id);
 
             if (!$servicio) {
-                Response::json(['error' => 'El servicio no existe.'], 404);
+                Response::json(['error' => t('service_not_found')], 404);
             }
 
             $ok = ServiciosRepository::activar((int) $id);
 
             if (!$ok) {
-                Response::json(['error' => 'No se pudo activar el servicio.'], 500);
+                Response::json(['error' => t('service_activate_error')], 500);
             }
 
-            Response::json(['message' => 'Servicio activado correctamente.']);
+            Response::json(['message' => t('service_activated_success')]);
         } catch (Throwable $e) {
-            Response::json(['error' => 'No se pudo activar el servicio.'], 500);
+            Response::json(['error' => t('service_activate_error')], 500);
         }
     }
 }

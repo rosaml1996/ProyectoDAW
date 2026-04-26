@@ -1,3 +1,12 @@
+function escaparHtml(texto) {
+    return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 function abrirModalEditarServicio(id, nombre, descripcion, duracion, precio) {
     document.getElementById("editar_id_servicio").value = id;
     document.getElementById("editar_nombre").value = nombre;
@@ -12,9 +21,11 @@ function cerrarModalEditarServicio() {
 }
 
 function abrirModalDesactivarServicio(id, nombre) {
+    const textoBase = window.serviciosTextos?.deactivateConfirm || "";
+    const textoFinal = textoBase.replace("%s", "<strong>" + escaparHtml(nombre) + "</strong>");
+
     document.getElementById("desactivar_id_servicio").value = id;
-    document.getElementById("textoModalDesactivarServicio").innerHTML =
-        '¿Seguro que quieres desactivar el servicio <strong>' + nombre + '</strong>?';
+    document.getElementById("textoModalDesactivarServicio").innerHTML = textoFinal;
     document.getElementById("modalDesactivarServicio").classList.add("activo");
 }
 
@@ -85,6 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (fieldEl) {
             fieldEl.classList.add("auth-field-error");
         }
+
         if (errorEl) {
             errorEl.textContent = mensaje;
         }
@@ -94,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (fieldEl) {
             fieldEl.classList.remove("auth-field-error");
         }
+
         if (errorEl) {
             errorEl.textContent = "";
         }
@@ -106,20 +119,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (tipo === "texto") {
             if (!valor) {
-                mostrarError(fieldEl, errorEl, "Este campo es obligatorio.");
+                mostrarError(fieldEl, errorEl, window.serviciosTextos.requiredField);
                 return false;
             }
+
             return true;
         }
 
         if (tipo === "numero_positivo") {
             if (!valor) {
-                mostrarError(fieldEl, errorEl, "Este campo es obligatorio.");
+                mostrarError(fieldEl, errorEl, window.serviciosTextos.requiredField);
                 return false;
             }
 
             if (Number(valor) <= 0 || !Number.isInteger(Number(valor))) {
-                mostrarError(fieldEl, errorEl, "Introduce un número entero mayor que 0.");
+                mostrarError(fieldEl, errorEl, window.serviciosTextos.positiveInteger);
                 return false;
             }
 
@@ -128,12 +142,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (tipo === "decimal_positivo") {
             if (!valor) {
-                mostrarError(fieldEl, errorEl, "Este campo es obligatorio.");
+                mostrarError(fieldEl, errorEl, window.serviciosTextos.requiredField);
                 return false;
             }
 
             if (Number(valor) <= 0) {
-                mostrarError(fieldEl, errorEl, "Introduce un precio mayor que 0.");
+                mostrarError(fieldEl, errorEl, window.serviciosTextos.positivePrice);
                 return false;
             }
 

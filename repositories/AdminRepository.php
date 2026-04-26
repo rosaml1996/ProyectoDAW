@@ -7,7 +7,7 @@ class AdminRepository
     {
         $pdo = db();
 
-        $sql = "SELECT id_admin, nombre, email, contraseña
+        $sql = "SELECT id_admin, nombre, email, `contraseña`
                 FROM administrador
                 WHERE email = :email";
 

@@ -22,13 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $jwt = $res["datos"]["token"];
 
-        setcookie("jwt", $jwt, [
-            "expires" => time() + 3600,
-            "path" => "/",
-            "httponly" => true,
-            "secure" => isset($_SERVER["HTTPS"]),
-            "samesite" => "Lax"
-        ]);
+        setcookie("jwt", $jwt, 0, "/");
 
         header("Location: admin/panel.php");
         exit;
@@ -54,7 +48,7 @@ require_once __DIR__ . '/partials/header.php';
         <div class="auth-shell">
 
             <a href="index.php" class="auth-brand">
-                <img src="/ProyectoDAW/img/Logo-corto.webp" alt="<?= t('site_logo_alt') ?>">
+                <img src="/ProyectoDAW/img/Logo-corto.webp" alt="Logo">
             </a>
 
             <div class="auth-card">

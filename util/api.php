@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../helpers/i18n.php';
 
 function llamarApi($metodo, $ruta, $datos = null)
 {
@@ -11,6 +12,9 @@ function llamarApi($metodo, $ruta, $datos = null)
             "ignore_errors" => true
         ]
     ];
+
+    // Enviamos el idioma actual a la API
+    $opciones["http"]["header"] .= "X-Language: " . currentLanguage() . "\r\n";
 
     if ($datos != null) {
         $json = json_encode($datos);
@@ -30,14 +34,14 @@ function llamarApi($metodo, $ruta, $datos = null)
         return [
             "ok" => false,
             "codigo" => 500,
-            "datos" => ["error" => "No se pudo conectar con el servidor"]
+            "datos" => ["error" => t("api_connection_error")]
         ];
     }
 
     $datosRespuesta = json_decode($respuesta, true);
 
     if (!is_array($datosRespuesta)) {
-        $datosRespuesta = ["error" => "Respuesta no válida de la API"];
+        $datosRespuesta = ["error" => t("api_invalid_response")];
     }
 
     $codigo = 200;

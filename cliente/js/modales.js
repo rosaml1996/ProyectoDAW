@@ -1,3 +1,22 @@
+function escaparHtml(texto) {
+    return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function reemplazarTexto(plantilla, datos) {
+    let texto = plantilla || "";
+
+    Object.keys(datos).forEach(function (clave) {
+        texto = texto.replaceAll("{" + clave + "}", datos[clave]);
+    });
+
+    return texto;
+}
+
 function abrirModalReservar(idCita, fecha, hora, servicio) {
     const input = document.getElementById("inputIdCitaReservar");
     const texto = document.getElementById("textoModalReservar");
@@ -6,13 +25,19 @@ function abrirModalReservar(idCita, fecha, hora, servicio) {
     if (!input || !texto || !modal) return;
 
     input.value = idCita;
-    texto.innerHTML =
-        "Vas a reservar una cita de <strong>" + servicio + "</strong> el día <strong>" + fecha + "</strong> a las <strong>" + hora + "</strong>. ¿Deseas continuar?";
+
+    texto.innerHTML = reemplazarTexto(window.modalesTextos.bookAppointmentText, {
+        servicio: "<strong>" + escaparHtml(servicio) + "</strong>",
+        fecha: "<strong>" + escaparHtml(fecha) + "</strong>",
+        hora: "<strong>" + escaparHtml(hora) + "</strong>"
+    });
+
     modal.classList.add("activo");
 }
 
 function cerrarModalReservar() {
     const modal = document.getElementById("modalReservar");
+
     if (modal) {
         modal.classList.remove("activo");
     }
@@ -26,13 +51,19 @@ function abrirModalAnular(idCita, fecha, hora, servicio) {
     if (!input || !texto || !modal) return;
 
     input.value = idCita;
-    texto.innerHTML =
-        "¿Seguro que quieres anular tu cita de <strong>" + servicio + "</strong> el día <strong>" + fecha + "</strong> a las <strong>" + hora + "</strong>?";
+
+    texto.innerHTML = reemplazarTexto(window.modalesTextos.cancelAppointmentText, {
+        servicio: "<strong>" + escaparHtml(servicio) + "</strong>",
+        fecha: "<strong>" + escaparHtml(fecha) + "</strong>",
+        hora: "<strong>" + escaparHtml(hora) + "</strong>"
+    });
+
     modal.classList.add("activo");
 }
 
 function cerrarModalAnular() {
     const modal = document.getElementById("modalAnular");
+
     if (modal) {
         modal.classList.remove("activo");
     }

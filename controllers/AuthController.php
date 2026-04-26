@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../repositories/PacientesRepository.php';
 require_once __DIR__ . '/../helpers/Response.php';
 require_once __DIR__ . '/../helpers/Request.php';
+require_once __DIR__ . '/../helpers/i18n.php';
 require_once __DIR__ . '/../security/JWT.php';
 require_once __DIR__ . '/../security/Auth.php';
 
@@ -17,25 +18,25 @@ class AuthController
             $clave = trim($data['clave'] ?? '');
 
             if ($emailTexto === '') {
-                Response::json(['error' => 'Debes escribir tu correo electrónico.'], 400);
+                Response::json(['error' => t('login_email_required')], 400);
             }
 
             if (!$email) {
-                Response::json(['error' => 'Introduce un correo electrónico válido.'], 400);
+                Response::json(['error' => t('login_email_invalid')], 400);
             }
 
             if ($clave === '') {
-                Response::json(['error' => 'Debes escribir tu contraseña.'], 400);
+                Response::json(['error' => t('login_password_required')], 400);
             }
 
             $paciente = PacientesRepository::findByEmail($email);
 
             if (!$paciente) {
-                Response::json(['error' => 'No existe ningún usuario con ese correo electrónico.'], 404);
+                Response::json(['error' => t('login_user_not_found')], 404);
             }
 
             if (!password_verify($clave, $paciente['contraseña'])) {
-                Response::json(['error' => 'La contraseña no es correcta.'], 401);
+                Response::json(['error' => t('login_password_incorrect')], 401);
             }
 
             $payload = [
@@ -47,7 +48,7 @@ class AuthController
             $jwt = JWT::generar($payload);
 
             Response::json([
-                'message' => 'Inicio de sesión correcto.',
+                'message' => t('login_success'),
                 'token' => $jwt,
                 'usuario' => [
                     'id_paciente' => $paciente['id_paciente'],
@@ -56,7 +57,7 @@ class AuthController
                 ]
             ]);
         } catch (Exception $e) {
-            Response::json(['error' => 'Ha ocurrido un error interno al iniciar sesión.'], 500);
+            Response::json(['error' => t('login_internal_error')], 500);
         }
     }
 
@@ -66,7 +67,7 @@ class AuthController
             $usuario = Auth::user();
             Response::json($usuario);
         } catch (Exception $e) {
-            Response::json(['error' => 'No se ha podido obtener la información del usuario.'], 500);
+            Response::json(['error' => t('user_info_error')], 500);
         }
     }
 
@@ -79,7 +80,7 @@ class AuthController
             'samesite' => 'Lax'
         ]);
 
-        Response::json(['message' => 'Sesión cerrada correctamente.']);
+        Response::json(['message' => t('logout_success')]);
     }
 
     public static function registro(): void
@@ -103,39 +104,39 @@ class AuthController
                 $clave === '' ||
                 $repetirClave === ''
             ) {
-                Response::json(['error' => 'Debes rellenar todos los campos.'], 400);
+                Response::json(['error' => t('form_all_fields_required')], 400);
             }
 
             if (mb_strlen($nombre) < 2) {
-                Response::json(['error' => 'El nombre debe tener al menos 2 caracteres.'], 400);
+                Response::json(['error' => t('name_min_length')], 400);
             }
 
             if (!$email) {
-                Response::json(['error' => 'Introduce un correo electrónico válido.'], 400);
+                Response::json(['error' => t('login_email_invalid')], 400);
             }
 
             if (!self::telefonoValido($telefono)) {
-                Response::json(['error' => 'Introduce un teléfono español válido de 9 dígitos que empiece por 6, 7, 8 o 9.'], 400);
+                Response::json(['error' => t('phone_invalid')], 400);
             }
 
             $fechaNacimiento = self::normalizarFechaNacimiento($fechaNacimientoTexto);
 
             if ($fechaNacimiento === null) {
-                Response::json(['error' => 'La fecha de nacimiento no es válida o es posterior a hoy.'], 400);
+                Response::json(['error' => t('birth_date_invalid')], 400);
             }
 
             if ($clave !== $repetirClave) {
-                Response::json(['error' => 'Las contraseñas no coinciden.'], 400);
+                Response::json(['error' => t('passwords_not_match')], 400);
             }
 
             if (strlen($clave) < 4) {
-                Response::json(['error' => 'La contraseña debe tener al menos 4 caracteres.'], 400);
+                Response::json(['error' => t('password_min_length')], 400);
             }
 
             $pacienteExistente = PacientesRepository::findByEmail($email);
 
             if ($pacienteExistente) {
-                Response::json(['error' => 'Ya existe una cuenta con ese correo electrónico.'], 409);
+                Response::json(['error' => t('account_email_exists')], 409);
             }
 
             $hash = password_hash($clave, PASSWORD_DEFAULT);
@@ -149,15 +150,15 @@ class AuthController
             );
 
             if (!$id) {
-                Response::json(['error' => 'No se pudo crear la cuenta.'], 500);
+                Response::json(['error' => t('account_create_error')], 500);
             }
 
             Response::json([
-                'message' => 'Cuenta creada correctamente. Ya puedes iniciar sesión.'
+                'message' => t('account_created_success')
             ], 201);
 
         } catch (Exception $e) {
-            Response::json(['error' => 'No se pudo completar el registro.'], 500);
+            Response::json(['error' => t('register_error')], 500);
         }
     }
 
@@ -176,31 +177,31 @@ class AuthController
             $repetirClave = trim($data['repetir_clave'] ?? '');
 
             if ($nombre === '' || $fechaNacimientoTexto === '' || $telefono === '' || $emailTexto === '') {
-                Response::json(['error' => 'Debes completar nombre, fecha de nacimiento, teléfono y correo electrónico.'], 400);
+                Response::json(['error' => t('profile_required_fields')], 400);
             }
 
             if (mb_strlen($nombre) < 2) {
-                Response::json(['error' => 'El nombre debe tener al menos 2 caracteres.'], 400);
+                Response::json(['error' => t('name_min_length')], 400);
             }
 
             if (!$email) {
-                Response::json(['error' => 'Introduce un correo electrónico válido.'], 400);
+                Response::json(['error' => t('login_email_invalid')], 400);
             }
 
             if (!self::telefonoValido($telefono)) {
-                Response::json(['error' => 'Introduce un teléfono español válido de 9 dígitos que empiece por 6, 7, 8 o 9.'], 400);
+                Response::json(['error' => t('phone_invalid')], 400);
             }
 
             $fechaNacimiento = self::normalizarFechaNacimiento($fechaNacimientoTexto);
 
             if ($fechaNacimiento === null) {
-                Response::json(['error' => 'La fecha de nacimiento no es válida o es posterior a hoy.'], 400);
+                Response::json(['error' => t('birth_date_invalid')], 400);
             }
 
             $pacienteExistente = PacientesRepository::findByEmail($email);
 
             if ($pacienteExistente && $pacienteExistente['id_paciente'] != $usuario['id_paciente']) {
-                Response::json(['error' => 'Ya existe otra cuenta con ese correo electrónico.'], 409);
+                Response::json(['error' => t('another_account_email_exists')], 409);
             }
 
             $ok = PacientesRepository::actualizar(
@@ -212,16 +213,16 @@ class AuthController
             );
 
             if (!$ok) {
-                Response::json(['error' => 'No se pudieron actualizar tus datos.'], 500);
+                Response::json(['error' => t('profile_update_data_error')], 500);
             }
 
             if ($clave !== '' || $repetirClave !== '') {
                 if ($clave !== $repetirClave) {
-                    Response::json(['error' => 'Las nuevas contraseñas no coinciden.'], 400);
+                    Response::json(['error' => t('new_passwords_not_match')], 400);
                 }
 
                 if (strlen($clave) < 4) {
-                    Response::json(['error' => 'La nueva contraseña debe tener al menos 4 caracteres.'], 400);
+                    Response::json(['error' => t('new_password_min_length')], 400);
                 }
 
                 $hash = password_hash($clave, PASSWORD_DEFAULT);
@@ -237,12 +238,12 @@ class AuthController
             $jwt = JWT::generar($payload);
 
             Response::json([
-                'message' => 'Tu perfil se ha actualizado correctamente.',
+                'message' => t('profile_updated_success'),
                 'token' => $jwt,
                 'usuario' => $payload
             ]);
         } catch (Exception $e) {
-            Response::json(['error' => 'No se pudo actualizar tu perfil.'], 500);
+            Response::json(['error' => t('profile_update_error')], 500);
         }
     }
 
@@ -254,12 +255,12 @@ class AuthController
             $perfil = PacientesRepository::getPerfilCompleto((int)$usuario['id_paciente']);
 
             if (!$perfil) {
-                Response::json(['error' => 'No se pudo cargar tu perfil.'], 404);
+                Response::json(['error' => t('profile_load_error')], 404);
             }
 
             Response::json($perfil);
         } catch (Exception $e) {
-            Response::json(['error' => 'No se pudo obtener tu perfil.'], 500);
+            Response::json(['error' => t('profile_get_error')], 500);
         }
     }
 

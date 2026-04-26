@@ -25,17 +25,9 @@ function esCitaPasada($fecha, $hora)
 
 function valorOrdenableCita($cita, $campo)
 {
-    if ($campo === "fecha") {
-        return $cita["fecha"] ?? "";
-    }
-
-    if ($campo === "hora") {
-        return $cita["hora"] ?? "";
-    }
-
-    if ($campo === "duracion" || $campo === "precio") {
-        return (float) ($cita[$campo] ?? 0);
-    }
+    if ($campo === "fecha") return $cita["fecha"] ?? "";
+    if ($campo === "hora") return $cita["hora"] ?? "";
+    if ($campo === "duracion" || $campo === "precio") return (float) ($cita[$campo] ?? 0);
 
     return mb_strtolower(trim((string) ($cita[$campo] ?? "")));
 }
@@ -46,9 +38,7 @@ function ordenarCitas(array $citas, string $campo, string $direccion): array
         $valorA = valorOrdenableCita($a, $campo);
         $valorB = valorOrdenableCita($b, $campo);
 
-        if ($valorA == $valorB) {
-            return 0;
-        }
+        if ($valorA == $valorB) return 0;
 
         if ($direccion === "desc") {
             return ($valorA < $valorB) ? 1 : -1;
@@ -77,10 +67,7 @@ function urlOrdenCitas(string $paramSort, string $paramDir, string $campo, strin
 
 function indicadorOrdenCitas(string $campo, string $campoActual, string $dirActual): string
 {
-    if ($campo !== $campoActual) {
-        return "↕";
-    }
-
+    if ($campo !== $campoActual) return "↕";
     return $dirActual === "asc" ? "↑" : "↓";
 }
 
@@ -131,10 +118,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     ]);
 
     if ($resAnular["ok"]) {
-        $mensaje = $resAnular["datos"]["message"] ?? t("client_appointments_cancel_success");
+        $mensaje = t("client_appointments_cancel_success");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resAnular["datos"]["error"] ?? t("client_appointments_cancel_error");
+        $mensaje = t("client_appointments_cancel_error");
         $tipoMensaje = "error";
     }
 }
@@ -145,9 +132,7 @@ if ($resCitas["ok"] && isset($resCitas["datos"]) && is_array($resCitas["datos"])
     $citas = $resCitas["datos"];
 
     foreach ($citas as $cita) {
-        if (!is_array($cita)) {
-            continue;
-        }
+        if (!is_array($cita)) continue;
 
         $estado = $cita["estado"] ?? "";
 
@@ -162,7 +147,7 @@ if ($resCitas["ok"] && isset($resCitas["datos"]) && is_array($resCitas["datos"])
     $citasPasadas = ordenarCitas($citasPasadas, $sortHistorial, $dirHistorial);
 } else {
     $hayErrorCarga = true;
-    $mensaje = $resCitas["datos"]["error"] ?? t("client_appointments_load_error");
+    $mensaje = t("client_appointments_load_error");
     $tipoMensaje = "error";
 }
 
@@ -216,10 +201,16 @@ require_once __DIR__ . '/../partials/header.php';
                             </thead>
                             <tbody>
                                 <?php foreach ($proximasCitas as $cita): ?>
+                                    <?php
+                                    $servicioTraducido = traducirServicio([
+                                        "nombre" => $cita["servicio"] ?? "",
+                                        "descripcion" => ""
+                                    ]);
+                                    ?>
                                     <tr>
                                         <td><?= htmlspecialchars(formatearFecha($cita["fecha"])) ?></td>
                                         <td><?= htmlspecialchars(formatearHora($cita["hora"])) ?></td>
-                                        <td><?= htmlspecialchars($cita["servicio"]) ?></td>
+                                        <td><?= htmlspecialchars($servicioTraducido["nombre"]) ?></td>
                                         <td><?= htmlspecialchars($cita["duracion"]) ?> <?= t("minutes_short") ?></td>
                                         <td><?= htmlspecialchars($cita["precio"]) ?> €</td>
                                         <td>
@@ -230,7 +221,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                     '<?= $cita['id_cita'] ?>',
                                                     '<?= htmlspecialchars(formatearFecha($cita['fecha'])) ?>',
                                                     '<?= htmlspecialchars(formatearHora($cita['hora'])) ?>',
-                                                    '<?= htmlspecialchars($cita['servicio'], ENT_QUOTES) ?>'
+                                                    '<?= htmlspecialchars($servicioTraducido['nombre'], ENT_QUOTES) ?>'
                                                 )"
                                             >
                                                 <?= t("client_cancel_button") ?>
@@ -245,7 +236,7 @@ require_once __DIR__ . '/../partials/header.php';
             </div>
 
             <div class="bloque-citas">
-                <h2 class="titulo-seccion-panel">Historial de citas</h2>
+                <h2 class="titulo-seccion-panel"><?= t("client_appointments_history_title") ?></h2>
 
                 <?php if (empty($citasPasadas)): ?>
                     <p class="sin-resultados"><?= t("client_past_appointments_empty") ?></p>
@@ -264,13 +255,22 @@ require_once __DIR__ . '/../partials/header.php';
                             </thead>
                             <tbody>
                                 <?php foreach ($citasPasadas as $cita): ?>
+                                    <?php
+                                    $servicioTraducido = traducirServicio([
+                                        "nombre" => $cita["servicio"] ?? "",
+                                        "descripcion" => ""
+                                    ]);
+
+                                    $estado = $cita["estado"] ?? "-";
+                                    $estadoTraducido = $estado !== "-" ? t("appointment_status_" . $estado) : "-";
+                                    ?>
                                     <tr>
                                         <td><?= htmlspecialchars(formatearFecha($cita["fecha"])) ?></td>
                                         <td><?= htmlspecialchars(formatearHora($cita["hora"])) ?></td>
-                                        <td><?= htmlspecialchars($cita["servicio"]) ?></td>
+                                        <td><?= htmlspecialchars($servicioTraducido["nombre"]) ?></td>
                                         <td><?= htmlspecialchars($cita["duracion"]) ?> <?= t("minutes_short") ?></td>
                                         <td><?= htmlspecialchars($cita["precio"]) ?> €</td>
-                                        <td><?= htmlspecialchars($cita["estado"] ?? "-") ?></td>
+                                        <td><?= htmlspecialchars($estadoTraducido) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -307,6 +307,13 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
     </div>
 </div>
+
+<script>
+    window.modalesTextos = {
+        cancelAppointmentText: <?= json_encode(t("client_cancel_confirm_text")) ?>,
+        bookAppointmentText: <?= json_encode(t("client_book_confirm_text")) ?>
+    };
+</script>
 
 <script src="/ProyectoDAW/cliente/js/modales.js"></script>
 

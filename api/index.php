@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../helpers/Response.php';
+require_once __DIR__ . '/../helpers/i18n.php';
 require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/CitasController.php';
 require_once __DIR__ . '/../controllers/ServiciosController.php';
@@ -174,4 +175,4 @@ if ($method === 'DELETE' && preg_match('#^admin/bloqueos/(\d+)$#', $ruta, $match
     BloqueosController::delete((int) $matches[1]);
 }
 
-Response::json(['error' => 'Ruta no encontrada'], 404);
+Response::json(['error' => t('api_route_not_found')], 404);

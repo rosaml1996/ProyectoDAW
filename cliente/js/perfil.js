@@ -1,4 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const textos = window.perfilTextos || {};
+
+    const t = function (clave, defecto) {
+        return textos[clave] || defecto;
+    };
+
     const form = document.getElementById("perfilForm");
 
     const nombre = document.getElementById("nombre");
@@ -23,35 +29,25 @@ document.addEventListener("DOMContentLoaded", function () {
     const fieldRepetirClave = document.getElementById("repetirClaveField");
 
     function limpiarError(errorEl, fieldEl) {
-        if (errorEl) {
-            errorEl.textContent = "";
-        }
-
-        if (fieldEl) {
-            fieldEl.classList.remove("auth-field-error");
-        }
+        if (errorEl) errorEl.textContent = "";
+        if (fieldEl) fieldEl.classList.remove("auth-field-error");
     }
 
     function mostrarError(errorEl, fieldEl, mensaje) {
-        if (errorEl) {
-            errorEl.textContent = mensaje;
-        }
-
-        if (fieldEl) {
-            fieldEl.classList.add("auth-field-error");
-        }
+        if (errorEl) errorEl.textContent = mensaje;
+        if (fieldEl) fieldEl.classList.add("auth-field-error");
     }
 
     function validarNombre() {
         limpiarError(errorNombre, fieldNombre);
 
         if (!nombre.value.trim()) {
-            mostrarError(errorNombre, fieldNombre, "El nombre es obligatorio.");
+            mostrarError(errorNombre, fieldNombre, t("requiredName", "El nombre es obligatorio."));
             return false;
         }
 
         if (nombre.value.trim().length < 2) {
-            mostrarError(errorNombre, fieldNombre, "El nombre debe tener al menos 2 caracteres.");
+            mostrarError(errorNombre, fieldNombre, t("shortName", "El nombre debe tener al menos 2 caracteres."));
             return false;
         }
 
@@ -63,12 +59,12 @@ document.addEventListener("DOMContentLoaded", function () {
         limpiarError(errorFecha, fieldFecha);
 
         if (!fecha.value) {
-            mostrarError(errorFecha, fieldFecha, "La fecha es obligatoria.");
+            mostrarError(errorFecha, fieldFecha, t("requiredDate", "La fecha es obligatoria."));
             return false;
         }
 
         if (fecha.value > hoy) {
-            mostrarError(errorFecha, fieldFecha, "La fecha no puede ser futura.");
+            mostrarError(errorFecha, fieldFecha, t("futureDate", "La fecha no puede ser futura."));
             return false;
         }
 
@@ -81,16 +77,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const tel = telefono.value.trim();
 
         if (!tel) {
-            mostrarError(errorTelefono, fieldTelefono, "El teléfono es obligatorio.");
+            mostrarError(errorTelefono, fieldTelefono, t("requiredPhone", "El teléfono es obligatorio."));
             return false;
         }
 
         if (!/^[6789]\d{8}$/.test(tel)) {
-            mostrarError(
-                errorTelefono,
-                fieldTelefono,
-                "Debe ser un teléfono válido (9 dígitos y empezar por 6, 7, 8 o 9)."
-            );
+            mostrarError(errorTelefono, fieldTelefono, t("invalidPhone", "Debe ser un teléfono válido (9 dígitos y empezar por 6, 7, 8 o 9)."));
             return false;
         }
 
@@ -103,14 +95,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const valor = email.value.trim();
 
         if (!valor) {
-            mostrarError(errorEmail, fieldEmail, "El email es obligatorio.");
+            mostrarError(errorEmail, fieldEmail, t("requiredEmail", "El email es obligatorio."));
             return false;
         }
 
         const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!regexEmail.test(valor)) {
-            mostrarError(errorEmail, fieldEmail, "Introduce un email válido.");
+            mostrarError(errorEmail, fieldEmail, t("invalidEmail", "Introduce un email válido."));
             return false;
         }
 
@@ -123,17 +115,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const valorClave = clave.value.trim();
         const valorRepetir = repetirClave.value.trim();
 
-        if (valorClave === "" && valorRepetir === "") {
-            return true;
-        }
+        if (valorClave === "" && valorRepetir === "") return true;
 
         if (valorClave === "") {
-            mostrarError(errorClave, fieldClave, "Debes escribir la nueva contraseña.");
+            mostrarError(errorClave, fieldClave, t("requiredPassword", "Debes escribir la nueva contraseña."));
             return false;
         }
 
         if (valorClave.length < 4) {
-            mostrarError(errorClave, fieldClave, "La contraseña debe tener al menos 4 caracteres.");
+            mostrarError(errorClave, fieldClave, t("shortPassword", "La contraseña debe tener al menos 4 caracteres."));
             return false;
         }
 
@@ -146,17 +136,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const valorClave = clave.value.trim();
         const valorRepetir = repetirClave.value.trim();
 
-        if (valorClave === "" && valorRepetir === "") {
-            return true;
-        }
+        if (valorClave === "" && valorRepetir === "") return true;
 
         if (valorRepetir === "") {
-            mostrarError(errorRepetirClave, fieldRepetirClave, "Debes repetir la nueva contraseña.");
+            mostrarError(errorRepetirClave, fieldRepetirClave, t("requiredRepeatPassword", "Debes repetir la nueva contraseña."));
             return false;
         }
 
         if (valorClave !== valorRepetir) {
-            mostrarError(errorRepetirClave, fieldRepetirClave, "Las contraseñas no coinciden.");
+            mostrarError(errorRepetirClave, fieldRepetirClave, t("passwordsDontMatch", "Las contraseñas no coinciden."));
             return false;
         }
 
@@ -175,9 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     clave.addEventListener("input", function () {
         validarClave();
-        if (repetirClave.value.trim() !== "") {
-            validarRepetirClave();
-        }
+        if (repetirClave.value.trim() !== "") validarRepetirClave();
     });
 
     repetirClave.addEventListener("input", validarRepetirClave);

@@ -3,9 +3,10 @@ namespace util;
 
 require_once __DIR__ . '/../helpers/i18n.php';
 
-class Html {
-
-    public static function inicioHtml(string $titulo = "Sin título", array $estilos = []) {
+class Html
+{
+    public static function inicioHtml(string $titulo = "Sin título", array $estilos = [])
+    {
         $lang = htmlspecialchars(currentLanguage(), ENT_QUOTES, 'UTF-8');
         ?>
         <!DOCTYPE html>
@@ -17,7 +18,7 @@ class Html {
             <meta charset="utf-8"/>
             <?php
             foreach ($estilos as $hoja) {
-                echo "<link type='text/css' rel='stylesheet' href='$hoja'>";
+                echo "<link type='text/css' rel='stylesheet' href='" . htmlspecialchars($hoja, ENT_QUOTES, 'UTF-8') . "'>";
             }
             ?>
         </head>
@@ -25,25 +26,38 @@ class Html {
         <?php
     }
 
-    public static function finHtml() {
+    public static function finHtml()
+    {
         echo <<<FIN
         </body>
         </html>
         FIN;
     }
 
-    public static function mostrarError(\Exception $e): void {
-        echo <<<ERROR
-        <h3>Error de la aplicación</h3>
+    public static function mostrarError(\Exception $e): void
+    {
+        ?>
+        <h3><?= htmlspecialchars(t("app_error_title")) ?></h3>
         <table>
-          <tbody>
-            <tr><th>Código de error</th><td>{$e->getCode()}</td></tr>
-            <tr><th>Mensaje de error</th><td>{$e->getMessage()}</td></tr>
-            <tr><th>Archivo</th><td>{$e->getFile()}</td></tr>
-            <tr><th>Línea</th><td>{$e->getLine()}</td></tr>
-          </tbody>
+            <tbody>
+                <tr>
+                    <th><?= htmlspecialchars(t("app_error_code")) ?></th>
+                    <td><?= htmlspecialchars((string) $e->getCode()) ?></td>
+                </tr>
+                <tr>
+                    <th><?= htmlspecialchars(t("app_error_message")) ?></th>
+                    <td><?= htmlspecialchars($e->getMessage()) ?></td>
+                </tr>
+                <tr>
+                    <th><?= htmlspecialchars(t("app_error_file")) ?></th>
+                    <td><?= htmlspecialchars($e->getFile()) ?></td>
+                </tr>
+                <tr>
+                    <th><?= htmlspecialchars(t("app_error_line")) ?></th>
+                    <td><?= htmlspecialchars((string) $e->getLine()) ?></td>
+                </tr>
+            </tbody>
         </table>
-        ERROR;
+        <?php
     }
 }
-?>
