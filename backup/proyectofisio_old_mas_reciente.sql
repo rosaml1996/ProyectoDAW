@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 26-04-2026 a las 19:22:22
+-- Tiempo de generación: 23-04-2026 a las 23:48:02
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `proyectofisio`
 --
+CREATE DATABASE IF NOT EXISTS `proyectofisio` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `proyectofisio`;
 
 -- --------------------------------------------------------
 
@@ -105,21 +107,15 @@ CREATE TABLE `cita` (
 --
 
 INSERT INTO `cita` (`id_cita`, `fecha`, `hora_inicio`, `hora_fin`, `estado`, `id_paciente`, `id_servicio`) VALUES
-(29, '2026-04-24', '09:30:00', '10:00:00', 'completada', 11, 17),
+(29, '2026-04-24', '09:30:00', '10:00:00', 'reservada', 11, 17),
 (30, '2026-06-10', '19:00:00', '19:40:00', 'reservada', 11, 16),
 (31, '2026-05-13', '17:00:00', '18:00:00', 'cancelada', 11, 20),
-(32, '2026-04-24', '11:00:00', '11:30:00', 'completada', 10, 2),
+(32, '2026-04-24', '11:00:00', '11:30:00', 'reservada', 10, 2),
 (33, '2026-07-14', '18:00:00', '18:30:00', 'reservada', 10, 2),
-(34, '2026-04-24', '12:00:00', '12:40:00', 'cancelada', 7, 16),
+(34, '2026-04-24', '12:00:00', '12:40:00', 'reservada', 7, 16),
 (35, '2026-04-30', '12:00:00', '13:00:00', 'reservada', 1, 20),
-(36, '2026-04-24', '18:30:00', '18:45:00', 'completada', 8, 26),
-(37, '2026-05-06', '12:00:00', '13:00:00', 'reservada', 8, 20),
-(38, '2026-04-29', '09:30:00', '10:15:00', 'cancelada', 7, 21),
-(39, '2027-02-02', '11:00:00', '12:00:00', 'reservada', 7, 15),
-(40, '2026-06-23', '09:00:00', '10:00:00', 'reservada', 7, 15),
-(41, '2026-07-06', '09:00:00', '10:00:00', 'cancelada', 7, 22),
-(42, '2026-04-29', '12:00:00', '12:15:00', 'reservada', 7, 26),
-(43, '2026-06-05', '09:00:00', '09:15:00', 'reservada', 7, 26);
+(36, '2026-04-24', '18:30:00', '18:45:00', 'reservada', 8, 26),
+(37, '2026-05-06', '12:00:00', '13:00:00', 'reservada', 8, 20);
 
 -- --------------------------------------------------------
 
@@ -290,7 +286,7 @@ ALTER TABLE `bloqueo_agenda`
 -- AUTO_INCREMENT de la tabla `cita`
 --
 ALTER TABLE `cita`
-  MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT de la tabla `horario_laboral`

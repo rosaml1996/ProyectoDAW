@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once __DIR__ . "/util/Html.php";
 require_once __DIR__ . "/util/api.php";
 require_once __DIR__ . '/helpers/i18n.php';
@@ -27,13 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $jwt = $res["datos"]["token"];
 
         // Guardamos el token en cookie
-        setcookie("jwt", $jwt, [
-            "expires" => time() + 3600,
-            "path" => "/",
-            "httponly" => true,
-            "secure" => isset($_SERVER["HTTPS"]),
-            "samesite" => "Lax"
-        ]);
+        setcookie("jwt", $jwt, 0, "/");
 
         // Redirigimos al panel
         header("Location: cliente/panel.php");
@@ -62,7 +56,7 @@ require_once __DIR__ . '/partials/header.php';
         <div class="auth-shell">
 
             <a href="index.php" class="auth-brand">
-                <img src="/ProyectoDAW/img/Logo-corto.webp" alt="<?= t('site_logo_alt') ?>">
+                <img src="/ProyectoDAW/img/Logo-corto.webp" alt="Logo de Fisioterapia Pablo Vega">
             </a>
 
             <div class="auth-card">
@@ -119,13 +113,6 @@ require_once __DIR__ . '/partials/header.php';
         </div>
     </section>
 </main>
-
-<script>
-window.loginTextos = {
-    requiredField: <?= json_encode(t("validation_required_field")) ?>,
-    invalidEmail: <?= json_encode(t("login_email_invalid")) ?>
-};
-</script>
 
 <script src="/ProyectoDAW/js/login.js" defer></script>
 

@@ -62,7 +62,7 @@ require_once __DIR__ . '/partials/header.php';
         <div class="auth-shell">
 
             <a href="index.php" class="auth-brand">
-                <img src="/ProyectoDAW/img/Logo-corto.webp" alt="Logo de Fisioterapia Pablo Vega">
+                <img src="/ProyectoDAW/img/Logo-corto.webp" alt="<?= t('site_logo_alt') ?>">
             </a>
 
             <div class="auth-card">
@@ -182,6 +182,20 @@ require_once __DIR__ . '/partials/header.php';
         </div>
     </section>
 </main>
+
+<script>
+window.registroTextos = {
+    requiredField: <?= json_encode(t("validation_required_field")) ?>,
+    shortName: <?= json_encode(t("register_short_name")) ?>,
+    invalidDate: <?= json_encode(t("register_invalid_date")) ?>,
+    futureDate: <?= json_encode(t("register_future_date")) ?>,
+    phoneOnlyNumbers: <?= json_encode(t("register_phone_only_numbers")) ?>,
+    invalidPhone: <?= json_encode(t("register_invalid_phone")) ?>,
+    invalidEmail: <?= json_encode(t("login_email_invalid")) ?>,
+    shortPassword: <?= json_encode(t("password_min_length")) ?>,
+    passwordsDontMatch: <?= json_encode(t("passwords_not_match")) ?>
+};
+</script>
 
 <script src="/ProyectoDAW/js/registro.js" defer></script>
 

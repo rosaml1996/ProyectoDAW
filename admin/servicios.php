@@ -96,7 +96,6 @@ if (!$payload || !isset($payload["rol"]) || $payload["rol"] !== "admin") {
 $mensaje = "";
 $tipoMensaje = "";
 
-// CREAR SERVICIO
 if (isset($_POST["crear"])) {
     $resCrear = llamarApi("POST", "servicios", [
         "nombre" => $_POST["nombre"] ?? "",
@@ -106,15 +105,14 @@ if (isset($_POST["crear"])) {
     ]);
 
     if ($resCrear["ok"]) {
-        $mensaje = $resCrear["datos"]["message"] ?? "Servicio creado correctamente.";
+        $mensaje = t("admin_services_create_success");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resCrear["datos"]["error"] ?? "No se pudo crear el servicio.";
+        $mensaje = t("admin_services_create_error");
         $tipoMensaje = "error";
     }
 }
 
-// EDITAR SERVICIO
 if (isset($_POST["editar"])) {
     $id = $_POST["id_servicio"] ?? "";
 
@@ -126,56 +124,52 @@ if (isset($_POST["editar"])) {
     ]);
 
     if ($resEditar["ok"]) {
-        $mensaje = $resEditar["datos"]["message"] ?? "Servicio actualizado correctamente.";
+        $mensaje = t("admin_services_edit_success");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resEditar["datos"]["error"] ?? "No se pudo actualizar el servicio.";
+        $mensaje = t("admin_services_edit_error");
         $tipoMensaje = "error";
     }
 }
 
-// DESACTIVAR SERVICIO
 if (isset($_POST["desactivar"])) {
     $id = $_POST["id_servicio"] ?? "";
 
     $resDesactivar = llamarApi("DELETE", "servicios/" . $id);
 
     if ($resDesactivar["ok"]) {
-        $mensaje = $resDesactivar["datos"]["message"] ?? "Servicio desactivado correctamente.";
+        $mensaje = t("admin_services_deactivate_success");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resDesactivar["datos"]["error"] ?? "No se pudo desactivar el servicio.";
+        $mensaje = t("admin_services_deactivate_error");
         $tipoMensaje = "error";
     }
 }
 
-// ACTIVAR SERVICIO
 if (isset($_POST["activar"])) {
     $id = $_POST["id_servicio"] ?? "";
 
     $resActivar = llamarApi("POST", "admin/servicios/" . $id . "/activar");
 
     if ($resActivar["ok"]) {
-        $mensaje = $resActivar["datos"]["message"] ?? "Servicio activado correctamente.";
+        $mensaje = t("admin_services_activate_success");
         $tipoMensaje = "ok";
     } else {
-        $mensaje = $resActivar["datos"]["error"] ?? "No se pudo activar el servicio.";
+        $mensaje = t("admin_services_activate_error");
         $tipoMensaje = "error";
     }
 }
 
-// CARGAR SERVICIOS
 $resServicios = llamarApi("GET", "admin/servicios");
 
 if ($resServicios["ok"]) {
     $servicios = $resServicios["datos"];
 } else {
     $servicios = [];
-    $mensaje = $resServicios["datos"]["error"] ?? "No se pudieron cargar los servicios.";
+    $mensaje = t("admin_services_load_error");
     $tipoMensaje = "error";
 }
 
-// ORDENACIÓN
 [$sortCampo, $sortDir] = getOrdenServicios('nombre', 'asc');
 
 $camposOrdenables = [
@@ -244,7 +238,7 @@ require_once __DIR__ . '/../partials/header.php';
                     <textarea
                         name="descripcion"
                         id="descripcion"
-                        placeholder="Descripción del servicio"
+                        placeholder="<?= t("admin_services_description_placeholder") ?>"
                         rows="4"
                         required
                     ></textarea>
@@ -295,31 +289,33 @@ require_once __DIR__ . '/../partials/header.php';
                     <table class="panel-table admin-services-table">
                         <thead>
                             <tr>
-                                <th><?= thOrdenableServicios('nombre', 'Servicio', $sortCampo, $sortDir) ?></th>
-                                <th><?= thOrdenableServicios('descripcion', 'Descripción', $sortCampo, $sortDir) ?></th>
-                                <th><?= thOrdenableServicios('duracion', 'Duración', $sortCampo, $sortDir) ?></th>
-                                <th><?= thOrdenableServicios('precio', 'Precio', $sortCampo, $sortDir) ?></th>
-                                <th><?= thOrdenableServicios('activo', 'Estado', $sortCampo, $sortDir) ?></th>
-                                <th>Acciones</th>
+                                <th><?= thOrdenableServicios('nombre', t("admin_services_table_service"), $sortCampo, $sortDir) ?></th>
+                                <th><?= thOrdenableServicios('descripcion', t("admin_services_table_description"), $sortCampo, $sortDir) ?></th>
+                                <th><?= thOrdenableServicios('duracion', t("admin_services_table_duration"), $sortCampo, $sortDir) ?></th>
+                                <th><?= thOrdenableServicios('precio', t("admin_services_table_price"), $sortCampo, $sortDir) ?></th>
+                                <th><?= thOrdenableServicios('activo', t("admin_services_table_status"), $sortCampo, $sortDir) ?></th>
+                                <th><?= t("admin_services_table_actions") ?></th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($servicios as $servicio): ?>
+                                <?php $servicioTraducido = traducirServicio($servicio); ?>
+
                                 <tr>
                                     <td class="admin-services-col-name">
-                                        <?= htmlspecialchars($servicio["nombre"]) ?>
+                                        <?= htmlspecialchars($servicioTraducido["nombre"]) ?>
                                     </td>
                                     <td class="admin-services-col-description">
-                                        <?= nl2br(htmlspecialchars($servicio["descripcion"] ?? "")) ?>
+                                        <?= nl2br(htmlspecialchars($servicioTraducido["descripcion"] ?? "")) ?>
                                     </td>
                                     <td class="admin-services-col-duration">
-                                        <?= htmlspecialchars($servicio["duracion"]) ?> min
+                                        <?= htmlspecialchars($servicio["duracion"]) ?> <?= t("admin_services_minutes") ?>
                                     </td>
                                     <td class="admin-services-col-price">
                                         <?= number_format((float) $servicio["precio"], 2, ",", ".") ?> €
                                     </td>
                                     <td class="admin-services-col-status">
-                                        <?= ((int) ($servicio["activo"] ?? 1) === 1) ? "Activo" : "Desactivado" ?>
+                                        <?= ((int) ($servicio["activo"] ?? 1) === 1) ? t("admin_services_status_active") : t("admin_services_status_inactive") ?>
                                     </td>
                                     <td class="admin-services-actions-cell">
                                         <div class="acciones-tabla admin-services-actions">
@@ -332,7 +328,7 @@ require_once __DIR__ . '/../partials/header.php';
                                                 data-duracion="<?= htmlspecialchars((string) $servicio['duracion']) ?>"
                                                 data-precio="<?= htmlspecialchars((string) $servicio['precio']) ?>"
                                             >
-                                                Editar
+                                                <?= t("admin_services_edit_button") ?>
                                             </button>
 
                                             <?php if ((int) ($servicio["activo"] ?? 1) === 1): ?>
@@ -340,15 +336,15 @@ require_once __DIR__ . '/../partials/header.php';
                                                     type="button"
                                                     class="btn-tabla btn-anular btn-desactivar-servicio"
                                                     data-id-servicio="<?= htmlspecialchars((string) $servicio['id_servicio']) ?>"
-                                                    data-nombre="<?= htmlspecialchars((string) $servicio['nombre']) ?>"
+                                                    data-nombre="<?= htmlspecialchars((string) $servicioTraducido['nombre']) ?>"
                                                 >
-                                                    Desactivar
+                                                    <?= t("admin_services_deactivate_button") ?>
                                                 </button>
                                             <?php else: ?>
                                                 <form method="POST" style="margin:0;">
-                                                    <input type="hidden" name="id_servicio" value="<?= $servicio["id_servicio"] ?>">
+                                                    <input type="hidden" name="id_servicio" value="<?= htmlspecialchars((string) $servicio["id_servicio"]) ?>">
                                                     <button type="submit" name="activar" class="btn-tabla btn-reservar">
-                                                        Activar
+                                                        <?= t("admin_services_activate_button") ?>
                                                     </button>
                                                 </form>
                                             <?php endif; ?>
@@ -389,7 +385,7 @@ require_once __DIR__ . '/../partials/header.php';
                     <textarea
                         name="descripcion_editar"
                         id="editar_descripcion"
-                        placeholder="Descripción del servicio"
+                        placeholder="<?= t("admin_services_description_placeholder") ?>"
                         rows="4"
                         required
                     ></textarea>
@@ -437,7 +433,7 @@ require_once __DIR__ . '/../partials/header.php';
 <div id="modalDesactivarServicio" class="modal-confirmacion">
     <div class="modal-box">
         <div class="modal-top">
-            <h3>Desactivar servicio</h3>
+            <h3><?= t("admin_services_modal_deactivate_title") ?></h3>
         </div>
 
         <div class="modal-body">
@@ -452,13 +448,21 @@ require_once __DIR__ . '/../partials/header.php';
             <form method="POST" style="margin:0;">
                 <input type="hidden" name="id_servicio" id="desactivar_id_servicio">
                 <button type="submit" name="desactivar" class="modal-btn modal-btn-peligro">
-                    Desactivar
+                    <?= t("admin_services_deactivate_button") ?>
                 </button>
             </form>
         </div>
     </div>
 </div>
 
+<script>
+    window.serviciosTextos = {
+        deactivateConfirm: <?= json_encode(t("admin_services_deactivate_confirm")) ?>,
+        requiredField: <?= json_encode(t("validation_required_field")) ?>,
+        positiveInteger: <?= json_encode(t("validation_positive_integer")) ?>,
+        positivePrice: <?= json_encode(t("validation_positive_price")) ?>
+    };
+</script>
 <script src="/ProyectoDAW/admin/js/servicios.js"></script>
 
 <?php Html::finHtml(); ?>

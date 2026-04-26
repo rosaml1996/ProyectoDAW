@@ -2,14 +2,11 @@
 
 class JWT
 {
-    private static string $secret = 'PROYECTO_FISIO_2026_JWT_SECRET_9xLm72QpA4vRz31K';
+    private static string $secret = 'cambia_esta_clave_super_secreta';
 
     public static function generar(array $payload): string
     {
         $header = ['alg' => 'HS256', 'typ' => 'JWT'];
-
-        $payload['iat'] = time();
-        $payload['exp'] = time() + 3600;
 
         $header64 = self::base64UrlEncode(json_encode($header));
         $payload64 = self::base64UrlEncode(json_encode($payload));
@@ -39,15 +36,7 @@ class JWT
 
         $payload = json_decode(self::base64UrlDecode($payload64), true);
 
-        if (!is_array($payload)) {
-            return false;
-        }
-
-        if (isset($payload['exp']) && time() > $payload['exp']) {
-            return false;
-        }
-
-        return $payload;
+        return is_array($payload) ? $payload : false;
     }
 
     private static function base64UrlEncode(string $data): string

@@ -1,3 +1,7 @@
+function tJs(key) {
+    return window.i18n?.[key] || key;
+}
+
 function abrirModalEditarHorario(id, dia, horaInicio, horaFin, activo) {
     document.getElementById("editar_id_horario").value = id;
     document.getElementById("editar_dia_semana").value = dia;
@@ -87,12 +91,12 @@ document.addEventListener("DOMContentLoaded", function () {
         limpiarError(errorEl, fieldEl);
 
         if (!valor) {
-            mostrarError(errorEl, fieldEl, "La fecha es obligatoria.");
+            mostrarError(errorEl, fieldEl, tJs("block_date_required"));
             return false;
         }
 
         if (valor < hoy) {
-            mostrarError(errorEl, fieldEl, "No se puede poner un bloqueo con fecha pasada.");
+            mostrarError(errorEl, fieldEl, tJs("block_past_date_error"));
             return false;
         }
 
@@ -103,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
         limpiarError(errorEl, fieldEl);
 
         if (!valor || !valor.trim()) {
-            mostrarError(errorEl, fieldEl, "El motivo es obligatorio.");
+            mostrarError(errorEl, fieldEl, tJs("block_reason_required"));
             return false;
         }
 
@@ -121,12 +125,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if ((horaInicio !== "" && horaFin === "") || (horaInicio === "" && horaFin !== "")) {
-            mostrarErrorSimple(errorEl, "Debes indicar ambas horas o dejar ambas vacías para bloquear el día completo.");
+            mostrarErrorSimple(errorEl, tJs("block_hours_required"));
             return false;
         }
 
         if (horaInicio >= horaFin) {
-            mostrarErrorSimple(errorEl, "La hora de inicio debe ser menor que la hora de fin.");
+            mostrarErrorSimple(errorEl, tJs("start_time_before_end_time"));
             return false;
         }
 

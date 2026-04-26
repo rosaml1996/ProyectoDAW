@@ -1362,6 +1362,12 @@ footer p {
   align-items: flex-start;
 }
 
+#langMessage {
+    margin: 10px auto;
+    max-width: 600px;
+    text-align: center;
+}
+
 /* ===================== MEDIA QUERIES ===================== */
 
 @media (min-width: 768px) {

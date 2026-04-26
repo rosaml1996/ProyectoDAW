@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode([
         'ok' => false,
-        'message' => 'Método no permitido'
+        'message' => t('error_method_not_allowed')
     ]);
     exit;
 }
@@ -21,7 +21,7 @@ if (!in_array($lang, availableLanguages(), true)) {
     http_response_code(400);
     echo json_encode([
         'ok' => false,
-        'message' => 'Idioma no válido'
+        'message' => t('error_invalid_language')
     ]);
     exit;
 }

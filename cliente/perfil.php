@@ -55,7 +55,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $tipoMensaje = "ok";
 
         if (isset($resActualizar["datos"]["token"])) {
-            setcookie("jwt", $resActualizar["datos"]["token"], 0, "/");
+            setcookie("jwt", $resActualizar["datos"]["token"], [
+                "expires" => time() + 3600,
+                "path" => "/",
+                "httponly" => true,
+                "secure" => isset($_SERVER["HTTPS"]),
+                "samesite" => "Lax"
+            ]);
         }
     } else {
         $mensaje = $resActualizar["datos"]["error"] ?? t("client_profile_update_error");
@@ -157,7 +163,6 @@ require_once __DIR__ . '/../partials/header.php';
                             name="clave"
                             id="clave"
                             placeholder="<?= t("client_profile_password_placeholder") ?>"
-                            value=""
                             autocomplete="new-password"
                         >
                     </div>
@@ -169,7 +174,6 @@ require_once __DIR__ . '/../partials/header.php';
                             name="repetir_clave"
                             id="repetir_clave"
                             placeholder="<?= t("client_profile_repeat_password_placeholder") ?>"
-                            value=""
                             autocomplete="new-password"
                         >
                     </div>
@@ -183,6 +187,23 @@ require_once __DIR__ . '/../partials/header.php';
         </div>
     </section>
 </main>
+
+<script>
+window.perfilTextos = {
+    requiredName: <?= json_encode(t("client_profile_required_name")) ?>,
+    shortName: <?= json_encode(t("client_profile_short_name")) ?>,
+    requiredDate: <?= json_encode(t("client_profile_required_date")) ?>,
+    futureDate: <?= json_encode(t("client_profile_future_date")) ?>,
+    requiredPhone: <?= json_encode(t("client_profile_required_phone")) ?>,
+    invalidPhone: <?= json_encode(t("client_profile_invalid_phone")) ?>,
+    requiredEmail: <?= json_encode(t("client_profile_required_email")) ?>,
+    invalidEmail: <?= json_encode(t("client_profile_invalid_email")) ?>,
+    requiredPassword: <?= json_encode(t("client_profile_required_password")) ?>,
+    shortPassword: <?= json_encode(t("client_profile_short_password")) ?>,
+    requiredRepeatPassword: <?= json_encode(t("client_profile_required_repeat_password")) ?>,
+    passwordsDontMatch: <?= json_encode(t("client_profile_passwords_dont_match")) ?>
+};
+</script>
 
 <script src="/ProyectoDAW/cliente/js/perfil.js"></script>
 

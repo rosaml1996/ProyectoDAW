@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 26-04-2026 a las 19:22:22
+-- Tiempo de generación: 23-04-2026 a las 21:33:26
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -44,7 +44,7 @@ CREATE TABLE `administrador` (
 --
 
 INSERT INTO `administrador` (`id_admin`, `nombre`, `email`, `contraseña`) VALUES
-(1, 'Luis de Toro', 'itorped@g.educaand.es', '$2y$10$.yHcGzeUqGGfBD8.76TuOeC1UAyWiozS9a.qSNl3N7O/bRIQy1ueO');
+(1, 'Luis', 'itorped@g.educaand.es', '$2y$10$.yHcGzeUqGGfBD8.76TuOeC1UAyWiozS9a.qSNl3N7O/bRIQy1ueO');
 
 -- --------------------------------------------------------
 
@@ -59,7 +59,7 @@ CREATE TABLE `bloqueo_agenda` (
   `hora_inicio` time DEFAULT NULL,
   `hora_fin` time DEFAULT NULL,
   `motivo` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ;
 
 --
 -- RELACIONES PARA LA TABLA `bloqueo_agenda`:
@@ -90,7 +90,7 @@ CREATE TABLE `cita` (
   `estado` varchar(50) NOT NULL,
   `id_paciente` int(11) DEFAULT NULL,
   `id_servicio` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ;
 
 --
 -- RELACIONES PARA LA TABLA `cita`:
@@ -105,21 +105,14 @@ CREATE TABLE `cita` (
 --
 
 INSERT INTO `cita` (`id_cita`, `fecha`, `hora_inicio`, `hora_fin`, `estado`, `id_paciente`, `id_servicio`) VALUES
-(29, '2026-04-24', '09:30:00', '10:00:00', 'completada', 11, 17),
-(30, '2026-06-10', '19:00:00', '19:40:00', 'reservada', 11, 16),
-(31, '2026-05-13', '17:00:00', '18:00:00', 'cancelada', 11, 20),
-(32, '2026-04-24', '11:00:00', '11:30:00', 'completada', 10, 2),
-(33, '2026-07-14', '18:00:00', '18:30:00', 'reservada', 10, 2),
-(34, '2026-04-24', '12:00:00', '12:40:00', 'cancelada', 7, 16),
-(35, '2026-04-30', '12:00:00', '13:00:00', 'reservada', 1, 20),
-(36, '2026-04-24', '18:30:00', '18:45:00', 'completada', 8, 26),
-(37, '2026-05-06', '12:00:00', '13:00:00', 'reservada', 8, 20),
-(38, '2026-04-29', '09:30:00', '10:15:00', 'cancelada', 7, 21),
-(39, '2027-02-02', '11:00:00', '12:00:00', 'reservada', 7, 15),
-(40, '2026-06-23', '09:00:00', '10:00:00', 'reservada', 7, 15),
-(41, '2026-07-06', '09:00:00', '10:00:00', 'cancelada', 7, 22),
-(42, '2026-04-29', '12:00:00', '12:15:00', 'reservada', 7, 26),
-(43, '2026-06-05', '09:00:00', '09:15:00', 'reservada', 7, 26);
+(3, '2026-03-01', '12:00:00', '13:00:00', 'completada', 1, 3),
+(22, '2026-04-30', '10:00:00', '11:00:00', 'cancelada', 7, 1),
+(23, '2026-05-20', '18:00:00', '19:00:00', 'cancelada', 7, 6),
+(24, '2026-05-28', '18:30:00', '19:30:00', 'cancelada', 7, 6),
+(25, '2026-04-23', '19:00:00', '20:00:00', 'completada', 7, 1),
+(26, '2026-04-24', '10:30:00', '11:30:00', 'reservada', 7, 1),
+(27, '2026-05-28', '18:00:00', '19:00:00', 'reservada', 7, 1),
+(28, '2026-05-28', '11:00:00', '12:00:00', 'cancelada', 7, 1);
 
 -- --------------------------------------------------------
 
@@ -134,7 +127,7 @@ CREATE TABLE `horario_laboral` (
   `hora_inicio` time NOT NULL,
   `hora_fin` time NOT NULL,
   `activo` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ;
 
 --
 -- RELACIONES PARA LA TABLA `horario_laboral`:
@@ -181,12 +174,11 @@ CREATE TABLE `paciente` (
 --
 
 INSERT INTO `paciente` (`id_paciente`, `nombre`, `fecha_nacimiento`, `telefono`, `email`, `contraseña`) VALUES
-(1, 'María Jimémez Ruíz ', '1990-01-01', '632958436', 'maria@gmail.com', '$2y$10$xhWD9r8sLwXhTkalhYngyOf8HsGNK7XR8QB/XMiX44QumunICtc8K'),
-(7, 'Rosa Moreno López', '1996-07-24', '672192920', 'rosa@email.com', '$2y$10$8EHN67TmpK.oW43qAzCq7u5m9Gpf1XXJRBjGxmmF0G2BlDndJnMg.'),
-(8, 'Laura Sánchez Ruiz', '1993-03-15', '612345789', 'laura.sanchez@email.com', '$2y$10$exhb5YgNKzdw.pn02OUik.2YftBLtKCPanjK6wlP4KCKynVzjn7Qa'),
-(9, 'Daniel Martín Pérez', '1987-11-08', '734856291', 'daniel.martin@email.com', '$2y$10$vYLNI1vljfoY.sZhtd5IWeNAVoDh6lEoTLxvG2ma4GGTmQ2dgVray'),
-(10, 'Carmen López García', '1979-06-22', '856913472', 'carmen.lopez@email.com', '$2y$10$gvJa/1uLyq2..2d6gq75QuouXMH7Xde6kXlNhK8an8mTtvuPAlBV6'),
-(11, 'Javier Torres Molina', '2001-01-30', '923748561', 'javier.torres@email.com', '$2y$10$.w.7OCOo1u.oQNoxynceTu01JLDVVYQ02oBaEi5.cG8m5.k41BjMq');
+(1, 'Maria', '1990-01-01', '632958436', 'maria@gmail.com', '$2y$10$xhWD9r8sLwXhTkalhYngyOf8HsGNK7XR8QB/XMiX44QumunICtc8K'),
+(2, 'maria gonzalez', '2026-04-07', '632514589', 'paco@gmail.com', '$2y$10$UWeTlbn5MUZ3IAAXUEi1LO7B2BTXycC8OofnrSZp4AR20cuUn8jtO'),
+(3, 'juan', '2028-01-09', '695785145', 'tomastoma@gmail.com', '$2y$10$NERI.WYf878.Tt6BR2ZEjeos/kkoHsbWNwJdYyz9d9UUK4h6cz1gG'),
+(4, 'sandra', '2026-04-08', '957486231', 'sandra@gmail.com', '$2y$10$dMKGsRUWM2q8bWudjcMTke6lQUxQWuJ2mq0JGMdyToF/OlSaX0Su.'),
+(7, 'Rosa Moreno López', '1996-07-24', '672192920', 'rosa@email.com', '$2y$10$8EHN67TmpK.oW43qAzCq7u5m9Gpf1XXJRBjGxmmF0G2BlDndJnMg.');
 
 -- --------------------------------------------------------
 
@@ -213,16 +205,16 @@ CREATE TABLE `servicio` (
 --
 
 INSERT INTO `servicio` (`id_servicio`, `nombre`, `descripcion`, `duracion`, `precio`, `activo`) VALUES
-(2, 'Punción seca', 'La punción seca es una técnica invasiva de fisioterapia que utiliza agujas muy finas (similares a las de acupuntura, pero con un fundamento diferente) para tratar los puntos gatillo miofasciales.', 30, 40.00, 1),
-(14, 'Terapias manuales avanzadas', 'Las terapias manuales avanzadas son técnicas de fisioterapia que utilizan las manos del terapeuta para tratar afecciones musculo-esqueléticas.', 45, 40.00, 1),
-(15, 'Electroterapia y neuromodulación', 'Electroterapia: Uso de corrientes eléctricas externas para aliviar dolor, desinflamar y mejorar función muscular.\r\nNeuromodulación: Modificación directa de la actividad de nervios específicos (a menudo con agujas finas) para tratar dolor crónico o disfunciones.', 60, 55.00, 1),
-(16, 'Magnetoterapia', 'La magnetoterapia es una técnica de fisioterapia que utiliza campos magnéticos (generalmente de baja frecuencia y baja intensidad) para tratar diversas patologías y afecciones en el cuerpo humano.', 40, 50.00, 1),
-(17, 'Vendaje funcional y kinesiología', 'Vendaje Funcional: Inmovilización parcial y mecánica con cinta rígida para limitar movimientos dañinos.\r\n\r\n\r\nVendaje Neuromuscular (Kinesio Taping): Vendaje elástico que busca facilitar procesos fisiológicos (reducción de dolor/hinchazón, soporte muscular) sin restringir el movimiento.', 30, 30.00, 1),
-(20, 'Fisioterapia deportiva', 'La fisioterapia deportiva es una especialidad centrada en la prevención, diagnóstico y tratamiento de lesiones relacionadas con la actividad física y el deporte.', 60, 50.00, 1),
-(21, 'Fisioterapia geriátrica', 'La fisioterapia geriátrica se centra en el tratamiento de pacientes mayores, abordando problemas como la movilidad reducida, el dolor crónico y la recuperación de cirugías.', 45, 40.00, 1),
-(22, 'Fisioterapia neurológica', 'La fisioterapia neurológica se centra en el tratamiento de pacientes con trastornos del sistema nervioso, como accidentes cerebrovasculares, esclerosis múltiple y lesiones medulares.', 60, 45.00, 1),
-(23, 'Rehabilitación postoperatoria', 'Es un programa de fisioterapia individualizado que se inicia tras una cirugía.', 30, 25.00, 1),
-(26, 'Ecografía neuromusculoesquelética', 'Es una técnica de diagnóstico por imagen que utiliza ondas de sonido de alta frecuencia para visualizar en tiempo real músculos, tendones, ligamentos, nervios, articulaciones y tejidos blandos del cuerpo.', 15, 25.00, 1);
+(1, 'Fisioterapia general', 'El cliente puede elegir en el momento lo que necesite con un máximo de 60 minutos de servicio.', 60, 35.00, 1),
+(2, 'Punción seca', NULL, 45, 40.00, 1),
+(3, 'Masaje deportivo', NULL, 60, 45.00, 1),
+(5, 'futbol', NULL, 50, 100.00, 0),
+(6, 'natacion', NULL, 60, 55.00, 1),
+(8, 'cr7(el mejor jugador de la historia del mundo mundial y punto)', NULL, 25, 25.00, 0),
+(10, 'sfdsf', 'sdfsf', 45, 0.90, 1),
+(11, 'dfgdg', 'fdgdg', 4545, 0.89, 1),
+(12, 'etgrete', 'retet', 4545, 0.50, 1),
+(13, 'prueba 1', 'sefewf', 43535, 0.80, 1);
 
 --
 -- Índices para tablas volcadas
@@ -284,31 +276,31 @@ ALTER TABLE `administrador`
 -- AUTO_INCREMENT de la tabla `bloqueo_agenda`
 --
 ALTER TABLE `bloqueo_agenda`
-  MODIFY `id_bloqueo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_bloqueo` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `cita`
 --
 ALTER TABLE `cita`
-  MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `horario_laboral`
 --
 ALTER TABLE `horario_laboral`
-  MODIFY `id_horario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id_horario` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `paciente`
 --
 ALTER TABLE `paciente`
-  MODIFY `id_paciente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_paciente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `servicio`
 --
 ALTER TABLE `servicio`
-  MODIFY `id_servicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id_servicio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- Restricciones para tablas volcadas

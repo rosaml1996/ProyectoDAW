@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../repositories/AdminRepository.php';
 require_once __DIR__ . '/../helpers/Response.php';
 require_once __DIR__ . '/../helpers/Request.php';
+require_once __DIR__ . '/../helpers/i18n.php';
 require_once __DIR__ . '/../security/JWT.php';
 
 class AdminController
@@ -15,21 +16,21 @@ class AdminController
             $clave = trim($data['clave'] ?? '');
 
             if (!$email) {
-                Response::json(['error' => 'Introduce un correo electrónico válido.'], 400);
+                Response::json(['error' => t('login_email_invalid')], 400);
             }
 
             if ($clave === '') {
-                Response::json(['error' => 'Debes escribir tu contraseña.'], 400);
+                Response::json(['error' => t('login_password_required')], 400);
             }
 
             $admin = AdminRepository::findByEmail($email);
 
             if (!$admin) {
-                Response::json(['error' => 'No existe ningún administrador con ese correo electrónico.'], 404);
+                Response::json(['error' => t('login_admin_not_found')], 404);
             }
 
             if (!password_verify($clave, $admin['contraseña'])) {
-                Response::json(['error' => 'La contraseña no es correcta.'], 401);
+                Response::json(['error' => t('login_password_incorrect')], 401);
             }
 
             $payload = [
@@ -42,12 +43,12 @@ class AdminController
             $jwt = JWT::generar($payload);
 
             Response::json([
-                'message' => 'Inicio de sesión correcto.',
+                'message' => t('login_success'),
                 'token' => $jwt,
                 'admin' => $payload
             ]);
         } catch (Exception $e) {
-            Response::json(['error' => 'No se pudo iniciar sesión como administrador.'], 500);
+            Response::json(['error' => t('admin_login_error')], 500);
         }
     }
 }

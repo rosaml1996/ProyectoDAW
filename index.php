@@ -240,7 +240,7 @@ require_once __DIR__ . '/helpers/i18n.php';
               </div>
               <div class="container-whatsapp-button">
                 <button class="whatsapp-button">
-                  <a href="https://wa.me/34691500130?text=Hola%2C%20me%20gustaría%20pedir%20una%20cita." target="_blank"
+                  <a href="https://wa.me/34691500130?text=<?= urlencode(t('whatsapp_message')) ?>" target="_blank"
                     rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i><span
                       class="subrayado-whatsapp-button"><?= t('contact_whatsapp_button') ?></span></a>
                 </button>
@@ -285,7 +285,7 @@ require_once __DIR__ . '/helpers/i18n.php';
 
   <footer>
     <div class="social-icons">
-      <a href="https://wa.me/34691500130?text=Hola%20Pablo%2C%20me%20gustar%C3%ADa%20pedir%20una%20cita."
+      <a href="https://wa.me/34691500130?text=<?= urlencode(t('whatsapp_footer_message')) ?>"
         target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
       <a href="https://www.instagram.com/fisioterapiapablovega" target="_blank" rel="noopener noreferrer"
         aria-label="Instagram"><i class="fab fa-instagram"></i></a>

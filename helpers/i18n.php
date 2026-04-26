@@ -11,9 +11,16 @@ function availableLanguages(): array
     return ['es', 'en'];
 }
 
-// Esta función devuelve el idioma actual guardado en sesión
+// Esta función devuelve el idioma actual
 function currentLanguage(): string
 {
+    // Si la API recibe el idioma por cabecera, lo usamos
+    $headerLang = $_SERVER['HTTP_X_LANGUAGE'] ?? '';
+
+    if (in_array($headerLang, availableLanguages(), true)) {
+        return $headerLang;
+    }
+
     // Si ya hay un idioma guardado y es válido, lo devolvemos
     if (isset($_SESSION['lang']) && in_array($_SESSION['lang'], availableLanguages(), true)) {
         return $_SESSION['lang'];
@@ -36,15 +43,12 @@ function translations(): array
 {
     $lang = currentLanguage();
 
-    // Monta la ruta al archivo: lang/es.php o lang/en.php
     $file = __DIR__ . '/../lang/' . $lang . '.php';
 
-    // Si el archivo existe, lo incluye y devuelve su array
     if (file_exists($file)) {
         return include $file;
     }
 
-    // Si por algún motivo falla, carga español
     return include __DIR__ . '/../lang/es.php';
 }
 
@@ -53,7 +57,63 @@ function t(string $key): string
 {
     $texts = translations();
 
-    // Si existe la clave, devuelve el texto
-    // Si no existe, devuelve la propia clave
     return $texts[$key] ?? $key;
+}
+
+// Convierte un texto de BBDD en una clave segura para traducciones
+function translationKeyFromText(string $text): string
+{
+    $text = trim(mb_strtolower($text));
+
+    $replacements = [
+        'á' => 'a',
+        'é' => 'e',
+        'í' => 'i',
+        'ó' => 'o',
+        'ú' => 'u',
+        'à' => 'a',
+        'è' => 'e',
+        'ì' => 'i',
+        'ò' => 'o',
+        'ù' => 'u',
+        'ä' => 'a',
+        'ë' => 'e',
+        'ï' => 'i',
+        'ö' => 'o',
+        'ü' => 'u',
+        'ñ' => 'n',
+        'ç' => 'c'
+    ];
+
+    $text = strtr($text, $replacements);
+    $text = preg_replace('/[^a-z0-9]+/', '_', $text);
+    $text = trim($text, '_');
+
+    return $text;
+}
+
+// Traduce un servicio de BBDD usando claves controladas en lang/es.php y lang/en.php
+function traducirServicio(array $servicio): array
+{
+    $nombreOriginal = $servicio['nombre'] ?? '';
+    $descripcionOriginal = $servicio['descripcion'] ?? '';
+
+    $claveBase = 'db_service_' . translationKeyFromText($nombreOriginal);
+
+    $claveNombre = $claveBase . '_name';
+    $claveDescripcion = $claveBase . '_description';
+
+    $nombreTraducido = t($claveNombre);
+    $descripcionTraducida = t($claveDescripcion);
+
+    $servicio['nombre'] = $nombreTraducido !== $claveNombre ? $nombreTraducido : $nombreOriginal;
+    $servicio['descripcion'] = $descripcionTraducida !== $claveDescripcion ? $descripcionTraducida : $descripcionOriginal;
+
+    return $servicio;
+}
+
+// Traduce una lista de servicios de BBDD
+function traducirServicios(array $servicios): array
+{
+    return array_map('traducirServicio', $servicios);
 }

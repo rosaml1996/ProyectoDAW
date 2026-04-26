@@ -5,6 +5,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  const textos = window.registroTextos || {};
+
+  const t = function (clave, defecto) {
+    return textos[clave] || defecto;
+  };
+
   const nombreInput = form.querySelector('input[name="nombre"]');
   const fechaInput = form.querySelector('input[name="fecha_nacimiento"]');
   const telefonoInput = form.querySelector('input[name="telefono"]');
@@ -66,12 +72,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const value = nombreInput.value.trim();
 
     if (value === "") {
-      setError(nombreInput, "Este campo es obligatorio.");
+      setError(nombreInput, t("requiredField", "Este campo es obligatorio."));
       return false;
     }
 
     if (value.length < 2) {
-      setError(nombreInput, "Debe tener al menos 2 caracteres.");
+      setError(nombreInput, t("shortName", "Debe tener al menos 2 caracteres."));
       return false;
     }
 
@@ -83,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const value = fechaInput.value.trim();
 
     if (value === "") {
-      setError(fechaInput, "Este campo es obligatorio.");
+      setError(fechaInput, t("requiredField", "Este campo es obligatorio."));
       return false;
     }
 
@@ -92,14 +98,14 @@ document.addEventListener("DOMContentLoaded", () => {
     hoy.setHours(0, 0, 0, 0);
 
     if (Number.isNaN(fecha.getTime())) {
-      setError(fechaInput, "Introduce una fecha válida.");
+      setError(fechaInput, t("invalidDate", "Introduce una fecha válida."));
       return false;
     }
 
     fecha.setHours(0, 0, 0, 0);
 
     if (fecha > hoy) {
-      setError(fechaInput, "La fecha no puede ser mayor que hoy.");
+      setError(fechaInput, t("futureDate", "La fecha no puede ser mayor que hoy."));
       return false;
     }
 
@@ -111,19 +117,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const value = telefonoInput.value.trim();
 
     if (value === "") {
-      setError(telefonoInput, "Este campo es obligatorio.");
+      setError(telefonoInput, t("requiredField", "Este campo es obligatorio."));
       return false;
     }
 
     const soloNumeros = value.replace(/\D/g, "");
 
     if (soloNumeros !== value) {
-      setError(telefonoInput, "El teléfono solo puede contener números.");
+      setError(telefonoInput, t("phoneOnlyNumbers", "El teléfono solo puede contener números."));
       return false;
     }
 
     if (!/^[6789]\d{8}$/.test(value)) {
-      setError(telefonoInput, "Debe tener 9 dígitos y empezar por 6, 7, 8 o 9.");
+      setError(telefonoInput, t("invalidPhone", "Debe tener 9 dígitos y empezar por 6, 7, 8 o 9."));
       return false;
     }
 
@@ -135,14 +141,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const value = emailInput.value.trim();
 
     if (value === "") {
-      setError(emailInput, "Este campo es obligatorio.");
+      setError(emailInput, t("requiredField", "Este campo es obligatorio."));
       return false;
     }
 
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!regex.test(value)) {
-      setError(emailInput, "Introduce un correo electrónico válido.");
+      setError(emailInput, t("invalidEmail", "Introduce un correo electrónico válido."));
       return false;
     }
 
@@ -154,12 +160,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const value = claveInput.value.trim();
 
     if (value === "") {
-      setError(claveInput, "Este campo es obligatorio.");
+      setError(claveInput, t("requiredField", "Este campo es obligatorio."));
       return false;
     }
 
     if (value.length < 4) {
-      setError(claveInput, "La contraseña debe tener al menos 4 caracteres.");
+      setError(claveInput, t("shortPassword", "La contraseña debe tener al menos 4 caracteres."));
       return false;
     }
 
@@ -171,12 +177,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const value = repetirClaveInput.value.trim();
 
     if (value === "") {
-      setError(repetirClaveInput, "Este campo es obligatorio.");
+      setError(repetirClaveInput, t("requiredField", "Este campo es obligatorio."));
       return false;
     }
 
     if (value !== claveInput.value.trim()) {
-      setError(repetirClaveInput, "Las contraseñas no coinciden.");
+      setError(repetirClaveInput, t("passwordsDontMatch", "Las contraseñas no coinciden."));
       return false;
     }
 

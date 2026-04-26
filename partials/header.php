@@ -19,7 +19,7 @@ $tipoHeader = $tipoHeader ?? 'public';
         <a href="/ProyectoDAW/index.php" class="auth-brand">
             <img
                 src="/ProyectoDAW/img/Logo-corto.webp"
-                alt="Logo de Fisioterapia Pablo Vega"
+                alt="<?= t('site_logo_alt') ?>"
                 class="logo"
             >
         </a>
@@ -99,31 +99,12 @@ $tipoHeader = $tipoHeader ?? 'public';
     </div>
 </header>
 
+<div id="langMessage" class="mensaje-error" style="display:none;"></div>
+
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const langSelector = document.getElementById('langSelector');
-
-    if (langSelector) {
-        langSelector.addEventListener('change', function () {
-            const selectedLang = this.value;
-
-            fetch('/ProyectoDAW/cambiar_idioma.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: 'lang=' + encodeURIComponent(selectedLang)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.ok) {
-                    location.reload();
-                }
-            })
-            .catch(() => {
-                alert('Error al cambiar el idioma');
-            });
-        });
-    }
-});
+window.headerTextos = {
+    error: <?= json_encode(t("language_change_error")) ?>
+};
 </script>
+
+<script src="/ProyectoDAW/partials/js/header.js" defer></script>
